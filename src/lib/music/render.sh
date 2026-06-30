@@ -38,8 +38,23 @@ music_render_now() {
   printf "${fmt}" "${title}" "${artist}"
 }
 
+# music_is_active STATUS -> 0 when STATUS means a track is loaded (playing or
+# paused), non-zero when nothing is playing (stopped, unknown, or empty).
+music_is_active() {
+  case "${1:-}" in
+    playing|paused) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
 music_render_icon() {
-  case "${1:-unknown}" in
+  local status="${1:-unknown}"
+  if [[ "$(get_tmux_option "@music_revamped_auto_hide" "1")" == "1" ]] \
+    && ! music_is_active "${status}"; then
+    echo ""
+    return 0
+  fi
+  case "${status}" in
     playing) get_tmux_option "@music_revamped_playing_icon" ">" ;;
     paused)  get_tmux_option "@music_revamped_paused_icon" "||" ;;
     stopped) get_tmux_option "@music_revamped_stopped_icon" "[]" ;;
@@ -93,6 +108,7 @@ music_render_time() {
 
 export -f _music_truncate
 export -f music_render_now
+export -f music_is_active
 export -f music_render_icon
 export -f music_render_text
 export -f music_format_time

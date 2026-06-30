@@ -8,6 +8,9 @@
 PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MUSIC_CMD="${PLUGIN_DIR}/src/music.sh"
 
+# shellcheck source=/dev/null
+source "${PLUGIN_DIR}/src/lib/music/bindings.sh"
+
 placeholders=(
   "\#{music}"
   "\#{music_icon}"
@@ -48,3 +51,5 @@ chmod +x "${MUSIC_CMD}" 2>/dev/null || true
 
 update_option "status-left"
 update_option "status-right"
+
+music_bind_keys "${MUSIC_CMD}"

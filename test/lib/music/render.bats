@@ -50,11 +50,36 @@ teardown() {
   [[ "$(music_render_now "LongTitle" "LongArtist")" == "Long... - Long..." ]]
 }
 
-@test "render.sh - music_render_icon returns defaults per status" {
+@test "render.sh - music_is_active is true while playing or paused" {
+  music_is_active playing
+  music_is_active paused
+}
+
+@test "render.sh - music_is_active is false when stopped, unknown, or empty" {
+  ! music_is_active stopped
+  ! music_is_active unknown
+  ! music_is_active ""
+}
+
+@test "render.sh - music_render_icon returns defaults per status with auto-hide off" {
+  set_tmux_option "@music_revamped_auto_hide" "0"
   [[ "$(music_render_icon playing)" == ">" ]]
   [[ "$(music_render_icon paused)" == "||" ]]
   [[ "$(music_render_icon stopped)" == "[]" ]]
   [[ -z "$(music_render_icon unknown)" ]]
+}
+
+@test "render.sh - music_render_icon hides the icon when stopped by default" {
+  [[ -z "$(music_render_icon stopped)" ]]
+}
+
+@test "render.sh - music_render_icon hides the icon on a cold start by default" {
+  [[ -z "$(music_render_icon)" ]]
+}
+
+@test "render.sh - music_render_icon shows the stop glyph when auto-hide is off" {
+  set_tmux_option "@music_revamped_auto_hide" "0"
+  [[ "$(music_render_icon stopped)" == "[]" ]]
 }
 
 @test "render.sh - music_render_icon honors a custom icon" {

@@ -5,6 +5,19 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-06-29
+
+### Added
+
+- Playback control: `play-pause`, `next`, and `prev` verbs on the dispatcher,
+  wired to configurable prefix key bindings (`@music_revamped_playpause_key`,
+  `@music_revamped_next_key`, `@music_revamped_prev_key`). Controls route to
+  playerctl, cmus, or Spotify via AppleScript by feature-detection.
+- When several players are present, reads now prefer the one that is actually
+  playing instead of the first one listed.
+- Auto-hide: the icon renders empty when nothing is playing, so the bar shows
+  nothing instead of a lone stop glyph. Toggle with `@music_revamped_auto_hide`.
+
 ## [1.2.1] - 2026-06-23
 
 ### Changed

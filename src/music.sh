@@ -21,6 +21,8 @@ source "${PLUGIN_DIR}/src/lib/utils/cache.sh"
 source "${PLUGIN_DIR}/src/lib/music/music.sh"
 # shellcheck source=/dev/null
 source "${PLUGIN_DIR}/src/lib/music/render.sh"
+# shellcheck source=/dev/null
+source "${PLUGIN_DIR}/src/lib/music/control.sh"
 
 music_max_age() {
   get_tmux_option "@music_revamped_interval" "5"
@@ -49,6 +51,13 @@ main() {
     music_refresh
     return 0
   fi
+
+  case "${cmd}" in
+    play-pause|next|prev)
+      music_control "${cmd}"
+      return 0
+      ;;
+  esac
 
   music_tick
 

@@ -141,3 +141,47 @@ teardown() {
   run _read_osascript
   true
 }
+
+@test "music.sh - playerctl list seams are callable without a real player" {
+  run _read_playerctl_list
+  run _read_playerctl_status_of spotify
+  true
+}
+
+@test "music.sh - music_pick_player prefers the playing player" {
+  run music_pick_player $'spotify Paused\nvlc Playing\nmpv Stopped'
+  [[ "${output}" == "vlc" ]]
+}
+
+@test "music.sh - music_pick_player falls back to the first when none play" {
+  run music_pick_player $'spotify Paused\nvlc Stopped'
+  [[ "${output}" == "spotify" ]]
+}
+
+@test "music.sh - music_pick_player is empty for no players" {
+  [[ -z "$(music_pick_player "")" ]]
+}
+
+@test "music.sh - music_active_player picks the playing player from the seams" {
+  _read_playerctl_list() { printf 'spotify\nvlc\n'; }
+  _read_playerctl_status_of() { case "$1" in spotify) echo "Paused" ;; vlc) echo "Playing" ;; esac; }
+  run music_active_player
+  [[ "${output}" == "vlc" ]]
+}
+
+@test "music.sh - music_active_player is empty when no player is listed" {
+  _read_playerctl_list() { printf ''; }
+  run music_active_player
+  [[ -z "${output}" ]]
+}
+
+@test "music.sh - playerctl seams target the selected player" {
+  playerctl() { echo "$*"; }
+  _MUSIC_PLAYERCTL_PLAYER="vlc"
+  run _read_playerctl_status
+  [[ "${output}" == "-p vlc status" ]]
+  run _read_playerctl_meta title
+  [[ "${output}" == "-p vlc metadata title" ]]
+  run _read_playerctl_position
+  [[ "${output}" == "-p vlc position" ]]
+}

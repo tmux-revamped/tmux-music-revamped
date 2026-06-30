@@ -4,11 +4,11 @@
 
 **Now playing in your tmux status bar, without ever blocking the status render.**
 
-[![Tests](https://github.com/tmux-revamped/tmux-music-revamped/actions/workflows/tests.yml/badge.svg)](https://github.com/tmux-revamped/tmux-music-revamped/actions/workflows/tests.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Version](https://img.shields.io/badge/version-1.2.1-blue.svg)](CHANGELOG.md)
+[![Tests](https://github.com/tmux-revamped/tmux-music-revamped/actions/workflows/tests.yml/badge.svg)](https://github.com/tmux-revamped/tmux-music-revamped/actions/workflows/tests.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Version](https://img.shields.io/badge/version-1.3.0-blue.svg)](CHANGELOG.md)
 
 </div>
 
-**7** placeholders · **4** backends · **90** tests · **95%+** coverage
+**7** placeholders · **4** backends · **126** tests · **95%+** coverage
 
 Show the current track, a progress bar, and elapsed and total time across multiple media backends. Players are queried in a detached background worker, so the status line reads a cached value and returns instantly with no temp files.
 
@@ -22,7 +22,7 @@ Built from
 </tr>
 <tr>
 <td><b>Multiple players</b><br/>nowplaying-cli on macOS, playerctl and cmus on Linux, plus Spotify via AppleScript.</td>
-<td><b>Tested</b><br/>90 bats tests hold coverage at 95%+ across the shell sources.</td>
+<td><b>Tested</b><br/>126 bats tests hold coverage at 95%+ across the shell sources.</td>
 </tr>
 </table>
 
@@ -64,6 +64,10 @@ Press `prefix + I` to install.
 | `@music_revamped_progress_full` | `█` | filled progress cell |
 | `@music_revamped_progress_empty` | `░` | empty progress cell |
 | `@music_revamped_time_format` | `%s/%s` | format for elapsed and total time |
+| `@music_revamped_auto_hide` | `1` | set to `0` to keep showing the stop icon when nothing plays |
+| `@music_revamped_playpause_key` | `M-p` | prefix key that toggles play/pause |
+| `@music_revamped_next_key` | `M-n` | prefix key that skips to the next track |
+| `@music_revamped_prev_key` | `M-b` | prefix key that skips to the previous track |
 | `@music_revamped_enable_logging` | `0` | set to `1` to log under `~/.tmux/music-revamped-logs` |
 
 ## Support by platform and architecture
@@ -77,6 +81,27 @@ Press `prefix + I` to install.
 Spotify is read through AppleScript with no extra package, including the player
 position and track duration, so the progress bar and elapsed time work on that
 path too. When no player is active the placeholders render empty.
+
+## Controls
+
+Three prefix key bindings control playback through whichever player is active,
+chosen the same way as the now-playing readout: playerctl, cmus, or Spotify via
+AppleScript.
+
+| Key | Action |
+|-----|--------|
+| `prefix + M-p` | play / pause |
+| `prefix + M-n` | next track |
+| `prefix + M-b` | previous track |
+
+Rebind any of them, for example:
+
+```tmux
+set -g @music_revamped_playpause_key 'C-Space'
+```
+
+When several players run at once, every reading and control targets the one that
+is actually playing.
 
 ## Development
 

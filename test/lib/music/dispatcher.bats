@@ -82,3 +82,17 @@ teardown() {
   run main bogus
   [[ -z "${output}" ]]
 }
+
+@test "music.sh dispatcher - play-pause routes to music_control" {
+  music_control() { echo "ctl:$1"; }
+  run main play-pause
+  [[ "${output}" == "ctl:play-pause" ]]
+}
+
+@test "music.sh dispatcher - next and prev route to music_control" {
+  music_control() { echo "ctl:$1"; }
+  run main next
+  [[ "${output}" == "ctl:next" ]]
+  run main prev
+  [[ "${output}" == "ctl:prev" ]]
+}
