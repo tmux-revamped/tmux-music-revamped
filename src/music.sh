@@ -44,6 +44,12 @@ music_tick() {
   cache_refresh_if_stale status "$(music_max_age)" music_refresh
 }
 
+music_wrap() {
+  local out="${1}"
+  [[ -n "${out}" ]] || return 0
+  printf '%s%s%s\n' "$(get_tmux_option "@music_revamped_before" "")" "${out}" "$(get_tmux_option "@music_revamped_after" "")"
+}
+
 main() {
   local cmd="${1:-}"
 
@@ -62,7 +68,7 @@ main() {
   music_tick
 
   case "${cmd}" in
-    now)    music_render_now "$(cache_get title)" "$(cache_get artist)" ;;
+    now)    music_wrap "$(music_render_now "$(cache_get title)" "$(cache_get artist)")" ;;
     icon)   music_render_icon "$(cache_get status)" ;;
     status) music_render_text "$(cache_get status)" ;;
     title)  music_render_text "$(cache_get title)" ;;

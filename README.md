@@ -64,6 +64,7 @@ Press `prefix + I` to install.
 | `@music_revamped_progress_full` | `█` | filled progress cell |
 | `@music_revamped_progress_empty` | `░` | empty progress cell |
 | `@music_revamped_time_format` | `%s/%s` | format for elapsed and total time |
+| `@music_revamped_before` / `@music_revamped_after` | empty | formats placed around `#{music}` only while a track is playing or paused, for example a theme's pill opening and closing |
 | `@music_revamped_auto_hide` | `1` | set to `0` to keep showing the stop icon when nothing plays |
 | `@music_revamped_playpause_key` | `M-p` | prefix key that toggles play/pause |
 | `@music_revamped_next_key` | `M-n` | prefix key that skips to the next track |

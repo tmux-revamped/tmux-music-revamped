@@ -96,3 +96,26 @@ teardown() {
   run main prev
   [[ "${output}" == "ctl:prev" ]]
 }
+
+@test "music.sh dispatcher - the track is wrapped when set" {
+  set_tmux_option "@music_revamped_before" "<<"
+  set_tmux_option "@music_revamped_after" ">>"
+
+  run music_wrap "Song - Band"
+
+  [[ "${output}" == "<<Song - Band>>" ]]
+}
+
+@test "music.sh dispatcher - nothing playing is not wrapped" {
+  set_tmux_option "@music_revamped_before" "<<"
+
+  run music_wrap ""
+
+  [ -z "${output}" ]
+}
+
+@test "music.sh dispatcher - the track is unwrapped by default" {
+  run music_wrap "Song - Band"
+
+  [[ "${output}" == "Song - Band" ]]
+}
