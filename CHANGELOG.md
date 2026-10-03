@@ -11,11 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `@music_revamped_render 'options'` replaces the `#()` calls with tmux option
   reads, written by one background process per server every
-  `status-interval` seconds; a play, pause, next or previous key publishes at
+  `@music_revamped_interval` seconds, 5 by default,; a play, pause, next or previous key publishes at
   once.
 - `@music_revamped_before` and `@music_revamped_after`, placed around
   `#{music}` only while a track is playing or paused, so a theme pill
   disappears when nothing plays.
+
+### Changed
+
+- The options-mode background process reads every option it needs in one tmux
+  call per tick, sends its cache writes and published values in a second, and
+  keeps its functions out of the environment of the commands it runs. Options
+  mode ticks every `@music_revamped_interval` seconds.
 
 ## [1.3.0] - 2026-06-29
 

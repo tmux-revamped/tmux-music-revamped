@@ -73,7 +73,7 @@ Press `prefix + I` to install.
 
 ### Render mode
 
-By default each placeholder becomes a `#()` call, and tmux runs it on every status redraw, which can be about once a second when several plugins share the bar. Set `@music_revamped_render` to `options` and each placeholder becomes a read of a tmux option instead, such as `#{E:@music_revamped_out_title}`. One background process per server reads the player every `status-interval` seconds, writes every value the status line uses in a single tmux call, and redraws once; a control key publishes at once. The process exits after its current tick when the server stops, and a config reload replaces it.
+By default each placeholder becomes a `#()` call, and tmux runs it on every status redraw, which can be about once a second when several plugins share the bar. Set `@music_revamped_render` to `options` and each placeholder becomes a read of a tmux option instead, such as `#{E:@music_revamped_out_title}`. One background process per server reads the player every `@music_revamped_interval` seconds, 5 by default, writes every value the status line uses in a single tmux call, and redraws once; a control key publishes at once. The process exits after its current tick when the server stops, and a config reload replaces it.
 
 ```tmux
 set -g @music_revamped_render 'options'

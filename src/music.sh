@@ -73,7 +73,7 @@ music_publish_if_options() {
 _music_reexec() { exec "${PLUGIN_DIR}/src/music.sh" daemon; }
 
 music_daemon() {
-  if ticker_run music_revamped music_publish "$$"; then
+  if ticker_run music_revamped music_publish "$$" 5; then
     _music_reexec
   fi
 }
