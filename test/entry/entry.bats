@@ -56,3 +56,12 @@ teardown() {
 
   [[ "$(cat "$(_mock_opt_file @music_revamped_published)")" == "title" ]]
 }
+
+@test "entry - a second run keeps metrics already turned into option reads" {
+  tmux set-option -gq "@music_revamped_render" "options"
+  tmux set-option -gq "status-right" "[#{E:@music_revamped_out_title}]"
+
+  bash "${ENTRY}"
+
+  [[ "$(cat "$(_mock_opt_file @music_revamped_published)")" == "title" ]]
+}

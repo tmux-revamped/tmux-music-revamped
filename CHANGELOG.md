@@ -24,6 +24,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   keeps its functions out of the environment of the commands it runs. Options
   mode ticks every `@music_revamped_interval` seconds.
 
+### Fixed
+
+- In options mode, running the entry point a second time, as two overlapping
+  config reloads do, found no placeholders left in the status line and
+  published nothing, which froze every value. A metric whose option read is
+  already on the status line now counts as used.
+
 ## [1.3.0] - 2026-06-29
 
 ### Added
