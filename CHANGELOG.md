@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `@music_revamped_render 'options'` replaces the `#()` calls with tmux option
+  reads, written by one background process per server every
+  `status-interval` seconds; a play, pause, next or previous key publishes at
+  once.
 - `@music_revamped_before` and `@music_revamped_after`, placed around
   `#{music}` only while a track is playing or paused, so a theme pill
   disappears when nothing plays.

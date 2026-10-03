@@ -18,6 +18,10 @@ source "${PLUGIN_DIR}/src/lib/tmux/tmux-ops.sh"
 # shellcheck source=/dev/null
 source "${PLUGIN_DIR}/src/lib/utils/cache.sh"
 # shellcheck source=/dev/null
+source "${PLUGIN_DIR}/src/lib/utils/publish.sh"
+# shellcheck source=/dev/null
+source "${PLUGIN_DIR}/src/lib/utils/ticker.sh"
+# shellcheck source=/dev/null
 source "${PLUGIN_DIR}/src/lib/music/music.sh"
 # shellcheck source=/dev/null
 source "${PLUGIN_DIR}/src/lib/music/render.sh"
@@ -50,6 +54,30 @@ music_wrap() {
   printf '%s%s%s\n' "$(get_tmux_option "@music_revamped_before" "")" "${out}" "$(get_tmux_option "@music_revamped_after" "")"
 }
 
+music_publish() {
+  local metric
+  music_refresh
+  for metric in $(get_tmux_option "@music_revamped_published" ""); do
+    publish_add "@music_revamped_out_${metric}" "$(main "${metric}")"
+  done
+  publish_commit
+}
+
+music_publish_if_options() {
+  if [[ "$(get_tmux_option "@music_revamped_render" "jobs")" == "options" ]]; then
+    music_publish
+  fi
+  return 0
+}
+
+_music_reexec() { exec "${PLUGIN_DIR}/src/music.sh" daemon; }
+
+music_daemon() {
+  if ticker_run music_revamped music_publish "$$"; then
+    _music_reexec
+  fi
+}
+
 main() {
   local cmd="${1:-}"
 
@@ -61,6 +89,15 @@ main() {
   case "${cmd}" in
     play-pause|next|prev)
       music_control "${cmd}"
+      music_publish_if_options
+      return 0
+      ;;
+    start)
+      ticker_start "${PLUGIN_DIR}/src/music.sh"
+      return 0
+      ;;
+    daemon)
+      music_daemon
       return 0
       ;;
   esac

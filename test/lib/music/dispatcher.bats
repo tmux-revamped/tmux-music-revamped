@@ -119,3 +119,66 @@ teardown() {
 
   [[ "${output}" == "Song - Band" ]]
 }
+
+@test "music.sh dispatcher - publish writes every published metric in one batch" {
+  export PUBLISH_LOG="${TEST_TMPDIR}/publish.log"
+  _publish_tmux() { [[ "${1}" == "list-clients" ]] && return 0; printf '%s\n' "$@" > "${PUBLISH_LOG}"; }
+  set_tmux_option "@music_revamped_published" "title artist"
+
+  music_publish
+
+  [[ "$(paste -sd'|' "${PUBLISH_LOG}")" == "set-option|-gq|@music_revamped_out_title|Song|;|set-option|-gq|@music_revamped_out_artist|Band" ]]
+}
+
+@test "music.sh dispatcher - a control key publishes at once in options mode" {
+  music_control() { return 0; }
+  music_publish() { echo "published" > "${TEST_TMPDIR}/published"; }
+  set_tmux_option "@music_revamped_render" "options"
+
+  main next
+
+  [[ "$(cat "${TEST_TMPDIR}/published")" == "published" ]]
+}
+
+@test "music.sh dispatcher - a control key does not publish in jobs mode" {
+  music_control() { return 0; }
+  music_publish() { echo "published" > "${TEST_TMPDIR}/published"; }
+
+  main next
+
+  [ ! -f "${TEST_TMPDIR}/published" ]
+}
+
+@test "music.sh dispatcher - the daemon re-executes after the tick limit" {
+  ticker_run() { return 0; }
+  _music_reexec() { echo "reexec" > "${TEST_TMPDIR}/reexec"; }
+
+  music_daemon
+
+  [[ "$(cat "${TEST_TMPDIR}/reexec")" == "reexec" ]]
+}
+
+@test "music.sh dispatcher - the daemon stops when it loses ownership" {
+  ticker_run() { return 1; }
+  _music_reexec() { echo "reexec" > "${TEST_TMPDIR}/reexec"; }
+
+  music_daemon
+
+  [ ! -f "${TEST_TMPDIR}/reexec" ]
+}
+
+@test "music.sh dispatcher - main daemon runs the ticker" {
+  music_daemon() { echo "daemon" > "${TEST_TMPDIR}/daemon"; }
+
+  main daemon
+
+  [[ "$(cat "${TEST_TMPDIR}/daemon")" == "daemon" ]]
+}
+
+@test "music.sh dispatcher - main start spawns the daemon" {
+  _ticker_spawn() { printf '%s' "${1}" > "${TEST_TMPDIR}/spawn"; }
+
+  main start
+
+  [[ "$(cat "${TEST_TMPDIR}/spawn")" == *"/src/music.sh" ]]
+}
