@@ -69,7 +69,6 @@ Press `prefix + I` to install.
 | `@music_revamped_playpause_key` | `M-p` | prefix key that toggles play/pause |
 | `@music_revamped_next_key` | `M-n` | prefix key that skips to the next track |
 | `@music_revamped_prev_key` | `M-b` | prefix key that skips to the previous track |
-| `@music_revamped_enable_logging` | `0` | set to `1` to log under `~/.tmux/music-revamped-logs` |
 
 ### Render mode
 
