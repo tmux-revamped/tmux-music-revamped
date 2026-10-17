@@ -83,17 +83,21 @@ set -g @music_revamped_render 'options'
 | Platform | Supported |
 |----------|-----------|
 | Linux (x86_64 and arm64) | yes, with `playerctl` installed |
-| macOS (Intel and Apple Silicon) | yes, Spotify via built-in AppleScript, or any player when `playerctl` is installed |
+| macOS (Intel and Apple Silicon) | yes, any player when `nowplaying-cli` is installed, else Spotify via built-in AppleScript |
 
-`playerctl` is preferred wherever it is present. On macOS without `playerctl`,
-Spotify is read through AppleScript with no extra package, including the player
-position and track duration, so the progress bar and elapsed time work on that
-path too. When no player is active the placeholders render empty.
+The now-playing readout tries each source in order and uses the first that is
+present: `nowplaying-cli` on macOS, then `playerctl` when it reports a player,
+then `cmus-remote`, then Spotify through AppleScript on macOS. The AppleScript
+path needs no extra package and still reads the player position and track
+duration, so the progress bar and elapsed time work there too. When no player
+is active the placeholders render empty.
 
 ## Controls
 
-Three prefix key bindings control playback through whichever player is active,
-chosen the same way as the now-playing readout: playerctl, cmus, or Spotify via
+Three prefix key bindings control playback through the first control backend
+present: playerctl, then cmus, then Spotify via AppleScript on macOS. With
+playerctl, the keys act on the same player the readout shows. `nowplaying-cli`
+only reads, so on macOS the keys still go through playerctl, cmus or
 AppleScript.
 
 | Key | Action |

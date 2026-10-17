@@ -51,6 +51,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - With `nowplaying-cli`, a track playing at any speed other than exactly 1,
   such as a podcast at 1.5x, showed as paused. Any playback rate above zero
   now counts as playing.
+- The README said `playerctl` is preferred everywhere and that the keys pick a
+  player the same way as the readout. On macOS `nowplaying-cli` is read first,
+  and it cannot send commands; the README now gives the real order for each.
 
 ## [1.3.0] - 2026-06-29
 
