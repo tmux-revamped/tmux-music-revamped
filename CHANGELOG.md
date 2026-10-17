@@ -44,6 +44,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The README documented `@music_revamped_enable_logging`, but no code path
   ever wrote a log, so setting it did nothing. The option is no longer
   documented.
+- With several MPRIS players open, the playback keys went to playerctl's
+  default player while the status line showed the playing one, so next could
+  skip a track in a paused player. The keys now target the player the status
+  line shows.
 
 ## [1.3.0] - 2026-06-29
 

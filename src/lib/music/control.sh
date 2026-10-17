@@ -15,6 +15,8 @@ _MUSIC_CONTROL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${_MUSIC_CONTROL_DIR}/../utils/platform.sh"
 # shellcheck source=/dev/null
 source "${_MUSIC_CONTROL_DIR}/../utils/has-command.sh"
+# shellcheck source=/dev/null
+source "${_MUSIC_CONTROL_DIR}/music.sh"
 
 # _control_playerctl_arg VERB -> the playerctl subcommand, non-zero if unknown.
 _control_playerctl_arg() {
@@ -48,7 +50,13 @@ _control_osascript_cmd() {
 
 # Backend seams. Thin wrappers over the player command, overridden in tests so
 # no real player is ever invoked.
-_control_playerctl() { playerctl "${1}" 2>/dev/null; }
+_control_playerctl() {
+  if [[ -n "${2:-}" ]]; then
+    playerctl -p "${2}" "${1}" 2>/dev/null
+  else
+    playerctl "${1}" 2>/dev/null
+  fi
+}
 _control_cmus() { cmus-remote "${1}" 2>/dev/null; }
 _control_osascript() { osascript -e "tell application \"Spotify\" to ${1}" 2>/dev/null; }
 
@@ -73,7 +81,7 @@ music_control() {
   case "$(music_control_backend)" in
     playerctl)
       arg=$(_control_playerctl_arg "${verb}") || return 0
-      _control_playerctl "${arg}"
+      _control_playerctl "${arg}" "$(music_active_player)"
       ;;
     cmus)
       arg=$(_control_cmus_arg "${verb}") || return 0

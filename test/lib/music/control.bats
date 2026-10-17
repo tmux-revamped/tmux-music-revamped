@@ -120,3 +120,23 @@ teardown() {
   run _control_osascript playpause
   true
 }
+
+@test "control.sh - music_control sends the verb to the player that is shown" {
+  # Arrange
+  export PCTL_LOG="${TEST_TMPDIR}/playerctl_calls"
+  has_command() { [[ "${1}" == "playerctl" ]]; }
+  _read_playerctl_list() { printf '%s\n' "vlc" "spotify"; }
+  _read_playerctl_status_of() {
+    case "${1}" in
+      spotify) echo "Playing" ;;
+      *) echo "Paused" ;;
+    esac
+  }
+  playerctl() { printf '%s\n' "$*" >> "${PCTL_LOG}"; }
+
+  # Act
+  music_control next
+
+  # Assert
+  [[ "$(cat "${PCTL_LOG}")" == "-p spotify next" ]]
+}
