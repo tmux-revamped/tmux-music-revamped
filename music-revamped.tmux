@@ -82,6 +82,8 @@ update_option "status-right"
 
 if [[ "${render_mode}" == "options" ]]; then
   "${MUSIC_CMD}" start 2>/dev/null || true
+else
+  tmux set-option -gqu "@music_revamped_ticker_pid"
 fi
 
 music_bind_keys "${MUSIC_CMD}"

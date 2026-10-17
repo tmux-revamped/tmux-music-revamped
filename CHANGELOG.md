@@ -34,6 +34,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   track metadata could inject a tmux format, including a `#()` command. Title
   and artist now have every `#` doubled before they are cached, and truncation
   never splits a doubled pair.
+- Switching `@music_revamped_render` from `options` back to jobs and reloading
+  left the background ticker running forever, still publishing options nothing
+  read. The entry point now releases the ticker in jobs mode, and the running
+  ticker exits on its next tick.
 
 ## [1.3.0] - 2026-06-29
 
