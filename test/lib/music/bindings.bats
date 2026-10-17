@@ -29,8 +29,8 @@ teardown() {
   music_version_ge "tmux 3.4" 1 9
   music_version_ge "tmux 2.0" 2 0
   music_version_ge "tmux 3.4" 3 1
-  ! music_version_ge "tmux 1.8" 2 0
-  ! music_version_ge "tmux 1.5" 1 9
+  ! music_version_ge "tmux 1.8" 2 0 || false
+  ! music_version_ge "tmux 1.5" 1 9 || false
   ! music_version_ge "garbage" 1 9
 }
 

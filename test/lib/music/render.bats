@@ -67,8 +67,8 @@ teardown() {
 }
 
 @test "render.sh - music_is_active is false when stopped, unknown, or empty" {
-  ! music_is_active stopped
-  ! music_is_active unknown
+  ! music_is_active stopped || false
+  ! music_is_active unknown || false
   ! music_is_active ""
 }
 
