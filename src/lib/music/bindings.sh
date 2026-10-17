@@ -56,9 +56,10 @@ music_version_ge() {
 # music_bind_one KEY CMD_PATH VERB -> bind KEY to run the dispatcher VERB. An
 # empty KEY disables that single binding.
 music_bind_one() {
-  local key="${1:-}" cmd_path="${2:-}" verb="${3:-}"
+  local key="${1:-}" cmd_path="${2:-}" verb="${3:-}" hash="#"
   [[ -z "${key}" ]] && return 0
-  _tmux bind-key "${key}" run-shell "${cmd_path} ${verb}"
+  cmd_path="$(printf '%q' "${cmd_path}")"
+  _tmux bind-key "${key}" run-shell "${cmd_path//"${hash}"/${hash}${hash}} ${verb}"
   return 0
 }
 

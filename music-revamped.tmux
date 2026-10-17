@@ -7,6 +7,9 @@
 
 PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MUSIC_CMD="${PLUGIN_DIR}/src/music.sh"
+HASH="#"
+MUSIC_CMD_QUOTED="$(printf '%q' "${MUSIC_CMD}")"
+MUSIC_CMD_QUOTED="${MUSIC_CMD_QUOTED//"${HASH}"/${HASH}${HASH}}"
 
 # shellcheck source=/dev/null
 source "${PLUGIN_DIR}/src/lib/music/bindings.sh"
@@ -22,13 +25,13 @@ placeholders=(
 )
 
 commands=(
-  "#(${MUSIC_CMD} now)"
-  "#(${MUSIC_CMD} icon)"
-  "#(${MUSIC_CMD} status)"
-  "#(${MUSIC_CMD} title)"
-  "#(${MUSIC_CMD} artist)"
-  "#(${MUSIC_CMD} progress)"
-  "#(${MUSIC_CMD} time)"
+  "#(${MUSIC_CMD_QUOTED} now)"
+  "#(${MUSIC_CMD_QUOTED} icon)"
+  "#(${MUSIC_CMD_QUOTED} status)"
+  "#(${MUSIC_CMD_QUOTED} title)"
+  "#(${MUSIC_CMD_QUOTED} artist)"
+  "#(${MUSIC_CMD_QUOTED} progress)"
+  "#(${MUSIC_CMD_QUOTED} time)"
 )
 
 render_mode="$(tmux show-option -gqv "@music_revamped_render")"
@@ -45,10 +48,16 @@ target_for() {
 }
 
 interpolate() {
-  local value="${1}"
-  local i
+  local value="${1}" i placeholder out rest
   for (( i = 0; i < ${#placeholders[@]}; i++ )); do
-    value="${value//${placeholders[i]}/$(target_for "${commands[i]}")}"
+    placeholder="${placeholders[i]#\\}"
+    out=""
+    rest="${value}"
+    while [[ "${rest}" == *"${placeholder}"* ]]; do
+      out="${out}${rest%%"${placeholder}"*}$(target_for "${commands[i]}")"
+      rest="${rest#*"${placeholder}"}"
+    done
+    value="${out}${rest}"
   done
   echo "${value}"
 }

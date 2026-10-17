@@ -40,6 +40,17 @@ teardown() {
   [[ "${output}" == "bind-key M-p run-shell /x/music.sh play-pause" ]]
 }
 
+@test "bindings.sh - music_bind_one quotes a script path with a space and a quote" {
+  # Arrange
+  _tmux() { echo "$*"; }
+
+  # Act
+  run music_bind_one "M-p" "/it's a dir/#x/music.sh" "play-pause"
+
+  # Assert
+  [[ "${output}" == "bind-key M-p run-shell /it\\'s\\ a\\ dir/##x/music.sh play-pause" ]]
+}
+
 @test "bindings.sh - music_bind_one skips an empty key" {
   _tmux() { echo "SHOULD-NOT-RUN"; }
   run music_bind_one "" "/x/music.sh" "play-pause"

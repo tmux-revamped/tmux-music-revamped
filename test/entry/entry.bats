@@ -77,3 +77,19 @@ teardown() {
   # Assert
   [ ! -f "$(_mock_opt_file @music_revamped_ticker_pid)" ]
 }
+
+@test "entry - jobs mode quotes a plugin path with a space and a quote" {
+  # Arrange
+  local dir="${TEST_TMPDIR}/it's dir"
+  mkdir -p "${dir}/src/lib/music" "${dir}/src/lib/tmux"
+  cp -f "${ENTRY}" "${dir}/music-revamped.tmux"
+  cp -f "${BATS_TEST_DIRNAME}/../../src/lib/music/bindings.sh" "${dir}/src/lib/music/bindings.sh"
+  cp -f "${BATS_TEST_DIRNAME}/../../src/lib/tmux/tmux-ops.sh" "${dir}/src/lib/tmux/tmux-ops.sh"
+  tmux set-option -gq "status-right" "[#{music_title}]"
+
+  # Act
+  bash "${dir}/music-revamped.tmux"
+
+  # Assert
+  [[ "$(cat "$(_mock_opt_file status-right)")" == "[#($(cd "${TEST_TMPDIR}" && pwd)/it\\'s\\ dir/src/music.sh title)]" ]]
+}
