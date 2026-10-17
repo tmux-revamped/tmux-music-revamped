@@ -27,6 +27,12 @@ setup_test_environment() {
   unset _TMUX_PLUGIN_PLATFORM_LOADED
   unset _TMUX_PLUGIN_CACHE_LOADED
   unset _TMUX_PLUGIN_TMUX_OPS_LOADED
+  unset _TMUX_PLUGIN_PUBLISH_LOADED
+  unset _TMUX_PLUGIN_TICKER_LOADED
+
+  if declare -f setup_test_environment_local >/dev/null; then
+    setup_test_environment_local
+  fi
 }
 
 cleanup_test_environment() {
@@ -40,7 +46,8 @@ _mock_opt_file() {
 }
 
 # Mock tmux: only the option verbs the libraries use. set-option writes a file,
-# show-option reads it. Everything else is a no-op success.
+# show-option reads it, and if-shell -F runs its commands when an option equals
+# a value. Everything else is a no-op success.
 tmux() {
   local verb="$1"
   shift || true
@@ -72,8 +79,8 @@ tmux() {
       local name=""
       while [ $# -gt 0 ]; do
         case "$1" in
-          -gqv|-wqv|-pqv|-gq|-g|-q|-w|-p) ;;
           -t) shift ;;
+          -*) ;;
           *) name="$1" ;;
         esac
         shift
@@ -83,10 +90,46 @@ tmux() {
       [ -f "${file}" ] && cat "${file}"
       return 0
       ;;
+    if-shell)
+      [ "${1:-}" = "-F" ] || return 0
+      _mock_if_option_equals "${2:-}" || return 0
+      _mock_run_commands "${3:-}"
+      return 0
+      ;;
     *)
       return 0
       ;;
   esac
+}
+
+_mock_if_option_equals() {
+  local open='#{==:#{' name expected file current=""
+  case "${1}" in
+    "${open}"*) ;;
+    *) return 1 ;;
+  esac
+  name="${1#"${open}"}"
+  name="${name%%\}*}"
+  expected="${1#*\},}"
+  expected="${expected%\}}"
+  file="$(_mock_opt_file "${name}")"
+  [ -f "${file}" ] && current="$(cat "${file}")"
+  [ "${current}" = "${expected}" ]
+}
+
+_mock_run_commands() {
+  local rest="${1}" part
+  local -a words
+  while [ -n "${rest}" ]; do
+    part="${rest%% ; *}"
+    if [ "${part}" = "${rest}" ]; then
+      rest=""
+    else
+      rest="${rest#* ; }"
+    fi
+    read -r -a words <<< "${part}"
+    tmux "${words[@]}"
+  done
 }
 
 # Mock date: +%s returns the controllable epoch; the log timestamp format
@@ -107,19 +150,14 @@ variable_exists() {
   [ -n "${!1:-}" ]
 }
 
-# Mock every media-player binary the seams might shell out to. Defining them as
-# exported shell functions guarantees that no real player is ever launched or
-# controlled by a test, even when a seam is exercised directly. Each mock is a
-# silent no-op that succeeds, so seam wrappers stay callable without side effects.
-osascript() { return 0; }
-playerctl() { return 0; }
-nowplaying-cli() { return 0; }
-cmus-remote() { return 0; }
-
 export -f _mock_opt_file
+export -f _mock_if_option_equals
+export -f _mock_run_commands
 export -f tmux
 export -f date
-export -f osascript
-export -f playerctl
-export -f cmus-remote
-export -f nowplaying-cli
+
+_HELPERS_LOCAL="$(dirname "${BASH_SOURCE[0]}")/helpers_local.bash"
+if [ -f "${_HELPERS_LOCAL}" ]; then
+  # shellcheck source=/dev/null
+  source "${_HELPERS_LOCAL}"
+fi
