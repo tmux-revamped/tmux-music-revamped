@@ -1,11 +1,4 @@
 #!/usr/bin/env bash
-#
-# control.sh: playback control across backends.
-#
-# music_control routes a canonical verb (play-pause, next, prev) to the player
-# present on the host, chosen by feature-detection. Each backend exposes a pure
-# verb-to-argument mapper and a thin seam that, in production, execs the player.
-# Tests override the seams, so no real player is ever launched.
 
 [[ -n "${_MUSIC_REVAMPED_CONTROL_LOADED:-}" ]] && return 0
 _MUSIC_REVAMPED_CONTROL_LOADED=1
@@ -18,7 +11,6 @@ source "${_MUSIC_CONTROL_DIR}/../utils/has-command.sh"
 # shellcheck source=/dev/null
 source "${_MUSIC_CONTROL_DIR}/music.sh"
 
-# _control_playerctl_arg VERB -> the playerctl subcommand, non-zero if unknown.
 _control_playerctl_arg() {
   case "${1:-}" in
     play-pause) echo "play-pause" ;;
@@ -28,7 +20,6 @@ _control_playerctl_arg() {
   esac
 }
 
-# _control_cmus_arg VERB -> the cmus-remote flag, non-zero if unknown.
 _control_cmus_arg() {
   case "${1:-}" in
     play-pause) printf '%s\n' "-u" ;;
@@ -38,7 +29,6 @@ _control_cmus_arg() {
   esac
 }
 
-# _control_osascript_cmd VERB -> the Spotify AppleScript verb, non-zero if unknown.
 _control_osascript_cmd() {
   case "${1:-}" in
     play-pause) echo "playpause" ;;
@@ -48,8 +38,6 @@ _control_osascript_cmd() {
   esac
 }
 
-# Backend seams. Thin wrappers over the player command, overridden in tests so
-# no real player is ever invoked.
 _control_playerctl() {
   if [[ -n "${2:-}" ]]; then
     playerctl -p "${2}" "${1}" 2>/dev/null
@@ -60,8 +48,6 @@ _control_playerctl() {
 _control_cmus() { cmus-remote "${1}" 2>/dev/null; }
 _control_osascript() { osascript -e "tell application \"Spotify\" to ${1}" 2>/dev/null; }
 
-# music_control_backend -> the control backend to use, by feature-detection:
-# playerctl, then cmus, then Spotify via AppleScript on macOS, else none.
 music_control_backend() {
   if has_command playerctl; then
     echo "playerctl"
@@ -74,8 +60,6 @@ music_control_backend() {
   fi
 }
 
-# music_control VERB -> send VERB to the active backend. Unknown verbs and the
-# absence of any backend are silent no-ops.
 music_control() {
   local verb="${1:-}" arg
   case "$(music_control_backend)" in

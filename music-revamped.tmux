@@ -1,9 +1,4 @@
 #!/usr/bin/env bash
-#
-# music-revamped.tmux: TPM entry point.
-#
-# Replaces the #{music*} placeholders in status-left and status-right with calls
-# to the dispatcher, which reads cached values and never blocks the render.
 
 PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MUSIC_CMD="${PLUGIN_DIR}/src/music.sh"

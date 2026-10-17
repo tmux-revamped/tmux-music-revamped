@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-#
-# render.sh: map cached now-playing values to text and an icon.
 
 [[ -n "${_MUSIC_REVAMPED_RENDER_LOADED:-}" ]] && return 0
 _MUSIC_REVAMPED_RENDER_LOADED=1
@@ -9,7 +7,6 @@ _MUSIC_RENDER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=/dev/null
 source "${_MUSIC_RENDER_DIR}/../tmux/tmux-ops.sh"
 
-# _music_truncate TEXT MAX -> TEXT shortened to MAX characters with an ellipsis.
 _music_truncate() {
   local text="${1}" max="${2}" cut tail
   [[ "${max}" =~ ^[0-9]+$ ]] || { echo "${text}"; return 0; }
@@ -41,8 +38,6 @@ music_render_now() {
   printf "${fmt}" "${title}" "${artist}"
 }
 
-# music_is_active STATUS -> 0 when STATUS means a track is loaded (playing or
-# paused), non-zero when nothing is playing (stopped, unknown, or empty).
 music_is_active() {
   case "${1:-}" in
     playing|paused) return 0 ;;
@@ -69,14 +64,12 @@ music_render_text() {
   echo "${1}"
 }
 
-# music_format_time SECONDS -> "M:SS".
 music_format_time() {
   local s="${1%%.*}"
   [[ "${s}" =~ ^[0-9]+$ ]] || s=0
   printf '%d:%02d' $(( s / 60 )) $(( s % 60 ))
 }
 
-# music_build_progress POS DUR WIDTH FULL EMPTY -> a progress bar string.
 music_build_progress() {
   local pos="${1%%.*}" dur="${2%%.*}" width="${3:-10}" full="${4:-#}" empty="${5:--}"
   [[ "${pos}" =~ ^[0-9]+$ ]] || pos=0

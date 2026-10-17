@@ -1,10 +1,4 @@
 #!/usr/bin/env bash
-#
-# music.sh: now-playing acquisition across backends.
-#
-# read_music returns three lines: status, title, artist. playerctl is preferred
-# where present, with an AppleScript Spotify fallback on macOS. Each probe sits
-# behind a seam tests override. music_norm_status is pure.
 
 [[ -n "${_MUSIC_REVAMPED_MUSIC_LOADED:-}" ]] && return 0
 _MUSIC_REVAMPED_MUSIC_LOADED=1
@@ -15,7 +9,6 @@ source "${_MUSIC_LIB_DIR}/../utils/platform.sh"
 # shellcheck source=/dev/null
 source "${_MUSIC_LIB_DIR}/../utils/has-command.sh"
 
-# music_norm_status RAW -> playing|paused|stopped|unknown.
 music_norm_status() {
   case "$(printf '%s' "${1}" | tr '[:upper:]' '[:lower:]')" in
     *playing*) echo "playing" ;;
@@ -25,8 +18,6 @@ music_norm_status() {
   esac
 }
 
-# parse_nowplaying TEXT -> five lines (status, title, artist, position, duration)
-# from `nowplaying-cli get title artist playbackRate elapsedTime duration`.
 parse_nowplaying() {
   local title artist rate elapsed dur
   title=$(sed -n '1p' <<< "${1}"); artist=$(sed -n '2p' <<< "${1}")
@@ -37,9 +28,6 @@ parse_nowplaying() {
   printf '%s\n%s\n%s\n%s\n%s\n' "${status}" "${title}" "${artist}" "${elapsed%%.*}" "${dur%%.*}"
 }
 
-# parse_osascript TEXT -> five lines (status, title, artist, position, duration)
-# from the Spotify AppleScript probe. Position is float seconds; duration is
-# milliseconds when it looks like ms (value > 10000), divided by 1000.
 parse_osascript() {
   local status title artist pos dur
   status=$(sed -n '1p' <<< "${1}"); title=$(sed -n '2p' <<< "${1}")
@@ -50,7 +38,6 @@ parse_osascript() {
   printf '%s\n%s\n%s\n%s\n%s\n' "${status}" "${title}" "${artist}" "${pos:-0}" "${dur:-0}"
 }
 
-# parse_cmus TEXT -> five lines from `cmus-remote -Q`.
 parse_cmus() {
   local st status title artist pos dur
   st=$(printf '%s\n' "${1}" | grep '^status ' | head -1 | cut -d' ' -f2-)
@@ -67,8 +54,6 @@ parse_cmus() {
   printf '%s\n%s\n%s\n%s\n%s\n' "${status}" "${title}" "${artist}" "${pos:-0}" "${dur:-0}"
 }
 
-# Host-probe seams. The playerctl probes honor _MUSIC_PLAYERCTL_PLAYER when set,
-# so read_music can target the player it selected as active.
 _read_playerctl_status() {
   if [[ -n "${_MUSIC_PLAYERCTL_PLAYER:-}" ]]; then
     playerctl -p "${_MUSIC_PLAYERCTL_PLAYER}" status 2>/dev/null
@@ -111,9 +96,6 @@ end run
 APPLESCRIPT
 }
 
-# music_pick_player LINES -> choose a player from a newline-separated list of
-# "NAME STATUS" pairs. Returns the first NAME whose STATUS is Playing, else the
-# first NAME, else empty. Pure: every input is an argument.
 music_pick_player() {
   local first="" name status line
   while IFS= read -r line; do
@@ -129,9 +111,6 @@ music_pick_player() {
   return 0
 }
 
-# music_active_player -> the playerctl player to query, preferring the one that
-# is Playing when several are present. Empty when no player is listed. The player
-# list and per-player status come from seams, so tests drive it with fixtures.
 music_active_player() {
   local players lines="" name
   players=$(_read_playerctl_list)
@@ -143,8 +122,6 @@ music_active_player() {
   music_pick_player "${lines}"
 }
 
-# read_music -> up to five lines (status, title, artist, position, duration), or
-# nothing when idle. Backends are tried in order of richness.
 read_music() {
   if is_macos && has_command nowplaying-cli; then
     parse_nowplaying "$(_read_nowplaying)"

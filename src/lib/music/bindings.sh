@@ -1,11 +1,4 @@
 #!/usr/bin/env bash
-#
-# bindings.sh: tmux key bindings for playback control.
-#
-# music_bind_keys registers prefix key bindings that invoke the dispatcher's
-# menu, play-pause, next, and prev verbs. Bindings are version-gated and every tmux
-# call goes through the _tmux seam, so the whole module is unit-testable without
-# a running server and without ever touching a real player.
 
 [[ -n "${_MUSIC_REVAMPED_BINDINGS_LOADED:-}" ]] && return 0
 _MUSIC_REVAMPED_BINDINGS_LOADED=1
@@ -14,14 +7,10 @@ _MUSIC_BINDINGS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=/dev/null
 source "${_MUSIC_BINDINGS_DIR}/../tmux/tmux-ops.sh"
 
-# Seam over tmux so bindings can be registered against a mock in tests.
 _tmux() { tmux "$@"; }
 
-# Seam over `tmux -V` so the version gate can be driven by fixtures.
 _tmux_version() { tmux -V 2>/dev/null; }
 
-# _music_parse_version STRING -> "MAJOR MINOR" as integers, or "0 0" when no
-# version number is present.
 _music_parse_version() {
   local v
   v=$(printf '%s' "${1:-}" | grep -oE '[0-9]+\.[0-9]+' | head -1)
@@ -32,8 +21,6 @@ _music_parse_version() {
   echo "${v%.*} ${v#*.}"
 }
 
-# music_version_ge VERSION_STRING WANT_MAJOR WANT_MINOR -> 0 when the parsed
-# version is at least WANT_MAJOR.WANT_MINOR.
 music_version_ge() {
   local parts have_major have_minor want_major want_minor
   parts=$(_music_parse_version "${1:-}")
@@ -53,8 +40,6 @@ music_version_ge() {
   return 1
 }
 
-# music_bind_one KEY CMD_PATH VERB -> bind KEY to run the dispatcher VERB. An
-# empty KEY disables that single binding.
 music_bind_one() {
   local key="${1:-}" cmd_path="${2:-}" verb="${3:-}" hash="#"
   [[ -z "${key}" ]] && return 0
@@ -63,9 +48,6 @@ music_bind_one() {
   return 0
 }
 
-# music_bind_keys CMD_PATH -> register the playback bindings, but only when the
-# running tmux is new enough. The menu key defaults to M-m; play-pause, next and
-# prev are unbound until their key options are set.
 music_bind_keys() {
   local cmd_path="${1:-}" menu_key playpause_key next_key prev_key
   music_version_ge "$(_tmux_version)" 1 9 || return 0

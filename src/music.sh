@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-#
-# music.sh: command dispatcher for tmux-music-revamped.
-#
-# Usage: music.sh now | icon | status | title | artist | refresh | menu
 
 PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
