@@ -48,6 +48,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   default player while the status line showed the playing one, so next could
   skip a track in a paused player. The keys now target the player the status
   line shows.
+- With `nowplaying-cli`, a track playing at any speed other than exactly 1,
+  such as a podcast at 1.5x, showed as paused. Any playback rate above zero
+  now counts as playing.
 
 ## [1.3.0] - 2026-06-29
 

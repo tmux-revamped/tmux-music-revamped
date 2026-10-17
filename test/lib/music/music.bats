@@ -33,6 +33,39 @@ teardown() {
   [[ -z "$(parse_nowplaying $'null\n\n0\n0\n0')" ]]
 }
 
+@test "music.sh - parse_nowplaying treats a faster playback rate as playing" {
+  # Arrange
+  local txt=$'Song\nBand\n1.5\n12.3\n200.0'
+
+  # Act
+  run parse_nowplaying "${txt}"
+
+  # Assert
+  [[ "${lines[0]}" == "playing" ]]
+}
+
+@test "music.sh - parse_nowplaying treats a slower playback rate as playing" {
+  # Arrange
+  local txt=$'Song\nBand\n0.75\n12.3\n200.0'
+
+  # Act
+  run parse_nowplaying "${txt}"
+
+  # Assert
+  [[ "${lines[0]}" == "playing" ]]
+}
+
+@test "music.sh - parse_nowplaying treats a zero playback rate as paused" {
+  # Arrange
+  local txt=$'Song\nBand\n0.0\n12.3\n200.0'
+
+  # Act
+  run parse_nowplaying "${txt}"
+
+  # Assert
+  [[ "${lines[0]}" == "paused" ]]
+}
+
 @test "music.sh - parse_osascript builds a five-field record" {
   local txt=$'playing\nSong\nBand\n83.5\n240000'
   run parse_osascript "${txt}"

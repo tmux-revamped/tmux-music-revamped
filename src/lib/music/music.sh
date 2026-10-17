@@ -33,7 +33,7 @@ parse_nowplaying() {
   rate=$(sed -n '3p' <<< "${1}"); elapsed=$(sed -n '4p' <<< "${1}"); dur=$(sed -n '5p' <<< "${1}")
   [[ -z "${title}" || "${title}" == "null" ]] && { echo ""; return 0; }
   local status="paused"
-  [[ "${rate}" == "1" || "${rate}" == "1.0" ]] && status="playing"
+  [[ "${rate}" =~ ^[0-9]*\.?[0-9]*$ && "${rate}" =~ [1-9] ]] && status="playing"
   printf '%s\n%s\n%s\n%s\n%s\n' "${status}" "${title}" "${artist}" "${elapsed%%.*}" "${dur%%.*}"
 }
 
