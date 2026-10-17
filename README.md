@@ -78,6 +78,14 @@ By default each placeholder becomes a `#()` call, and tmux runs it on every stat
 set -g @music_revamped_render 'options'
 ```
 
+### Internal state
+
+The plugin manages these options itself. Do not set them.
+
+| Option | Holds |
+|--------|-------|
+| `@music_revamped_published` | space-separated metrics the status line uses, written at load so the `options` render mode publishes only those |
+
 ## Support by platform and architecture
 
 | Platform | Supported |
