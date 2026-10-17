@@ -2,7 +2,7 @@
 #
 # music.sh: command dispatcher for tmux-music-revamped.
 #
-# Usage: music.sh now | icon | status | title | artist | refresh
+# Usage: music.sh now | icon | status | title | artist | refresh | menu
 
 PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
@@ -27,6 +27,8 @@ source "${PLUGIN_DIR}/src/lib/music/music.sh"
 source "${PLUGIN_DIR}/src/lib/music/render.sh"
 # shellcheck source=/dev/null
 source "${PLUGIN_DIR}/src/lib/music/control.sh"
+# shellcheck source=/dev/null
+source "${PLUGIN_DIR}/src/lib/music/bindings.sh"
 
 music_max_age() {
   get_tmux_option "@music_revamped_interval" "5"
@@ -90,6 +92,10 @@ main() {
     play-pause|next|prev)
       music_control "${cmd}"
       music_publish_if_options
+      return 0
+      ;;
+    menu)
+      music_menu "${PLUGIN_DIR}/src/music.sh"
       return 0
       ;;
     start)

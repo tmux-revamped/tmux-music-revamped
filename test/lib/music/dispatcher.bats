@@ -97,6 +97,17 @@ teardown() {
   [[ "${output}" == "ctl:prev" ]]
 }
 
+@test "music.sh dispatcher - menu opens the playback menu through the dispatcher" {
+  # Arrange
+  music_menu() { echo "menu:${1}"; }
+
+  # Act
+  run main menu
+
+  # Assert
+  [[ "${output}" == "menu:"*"/src/music.sh" ]]
+}
+
 @test "music.sh dispatcher - the track is wrapped when set" {
   set_tmux_option "@music_revamped_before" "<<"
   set_tmux_option "@music_revamped_after" ">>"

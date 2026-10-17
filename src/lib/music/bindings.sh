@@ -3,7 +3,7 @@
 # bindings.sh: tmux key bindings for playback control.
 #
 # music_bind_keys registers prefix key bindings that invoke the dispatcher's
-# play-pause, next, and prev verbs. Bindings are version-gated and every tmux
+# menu, play-pause, next, and prev verbs. Bindings are version-gated and every tmux
 # call goes through the _tmux seam, so the whole module is unit-testable without
 # a running server and without ever touching a real player.
 
@@ -63,19 +63,41 @@ music_bind_one() {
   return 0
 }
 
-# music_bind_keys CMD_PATH -> register all playback bindings, but only when the
-# running tmux is new enough. Key names are configurable; defaults are M-p, M-n,
-# and M-b.
+# music_bind_keys CMD_PATH -> register the playback bindings, but only when the
+# running tmux is new enough. The menu key defaults to M-m; play-pause, next and
+# prev are unbound until their key options are set.
 music_bind_keys() {
-  local cmd_path="${1:-}" playpause_key next_key prev_key
+  local cmd_path="${1:-}" menu_key playpause_key next_key prev_key
   music_version_ge "$(_tmux_version)" 1 9 || return 0
-  playpause_key=$(get_tmux_option "@music_revamped_playpause_key" "M-p")
-  next_key=$(get_tmux_option "@music_revamped_next_key" "M-n")
-  prev_key=$(get_tmux_option "@music_revamped_prev_key" "M-b")
+  menu_key=$(get_tmux_option "@music_revamped_menu_key" "M-m")
+  playpause_key=$(get_tmux_option "@music_revamped_playpause_key" "")
+  next_key=$(get_tmux_option "@music_revamped_next_key" "")
+  prev_key=$(get_tmux_option "@music_revamped_prev_key" "")
+  [[ "${menu_key}" == "off" ]] && menu_key=""
+  music_bind_one "${menu_key}" "${cmd_path}" "menu"
   music_bind_one "${playpause_key}" "${cmd_path}" "play-pause"
   music_bind_one "${next_key}" "${cmd_path}" "next"
   music_bind_one "${prev_key}" "${cmd_path}" "prev"
   return 0
+}
+
+_music_tmux_quote() {
+  local quote="'" escaped="'\"'\"'"
+  printf "'%s'" "${1//"${quote}"/${escaped}}"
+}
+
+music_menu_command() {
+  local cmd_path hash="#"
+  cmd_path="$(printf '%q' "${1:-}")"
+  printf 'run-shell %s' "$(_music_tmux_quote "${cmd_path//"${hash}"/${hash}${hash}} ${2:-}")"
+}
+
+music_menu() {
+  local cmd_path="${1:-}"
+  _tmux display-menu -T "Music" \
+    "Play/Pause" p "$(music_menu_command "${cmd_path}" play-pause)" \
+    "Next" n "$(music_menu_command "${cmd_path}" next)" \
+    "Previous" b "$(music_menu_command "${cmd_path}" prev)"
 }
 
 export -f _tmux
@@ -84,3 +106,6 @@ export -f _music_parse_version
 export -f music_version_ge
 export -f music_bind_one
 export -f music_bind_keys
+export -f _music_tmux_quote
+export -f music_menu_command
+export -f music_menu

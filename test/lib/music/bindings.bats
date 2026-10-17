@@ -57,14 +57,81 @@ teardown() {
   [[ -z "${output}" ]]
 }
 
-@test "bindings.sh - music_bind_keys registers three bindings on a new tmux" {
+@test "bindings.sh - music_bind_keys binds only the menu on M-m by default" {
+  # Arrange
   _tmux_version() { echo "tmux 3.4"; }
   _tmux() { echo "$*" >> "${TEST_TMPDIR}/binds"; }
+
+  # Act
   music_bind_keys "/x/music.sh"
-  [[ "$(grep -c . "${TEST_TMPDIR}/binds")" -eq 3 ]]
-  grep -q "bind-key M-p run-shell /x/music.sh play-pause" "${TEST_TMPDIR}/binds"
-  grep -q "bind-key M-n run-shell /x/music.sh next" "${TEST_TMPDIR}/binds"
+
+  # Assert
+  [[ "$(cat "${TEST_TMPDIR}/binds")" == "bind-key M-m run-shell /x/music.sh menu" ]]
+}
+
+@test "bindings.sh - play-pause is unbound by default" {
+  # Arrange
+  _tmux_version() { echo "tmux 3.4"; }
+  _tmux() { echo "$*" >> "${TEST_TMPDIR}/binds"; }
+
+  # Act
+  music_bind_keys "/x/music.sh"
+
+  # Assert
+  ! grep -q "play-pause" "${TEST_TMPDIR}/binds"
+}
+
+@test "bindings.sh - music_bind_keys binds the playback keys once set" {
+  # Arrange
+  _tmux_version() { echo "tmux 3.4"; }
+  _tmux() { echo "$*" >> "${TEST_TMPDIR}/binds"; }
+  set_tmux_option "@music_revamped_playpause_key" "M-p"
+  set_tmux_option "@music_revamped_next_key" "M-n"
+  set_tmux_option "@music_revamped_prev_key" "M-b"
+
+  # Act
+  music_bind_keys "/x/music.sh"
+
+  # Assert
+  [[ "$(grep -c . "${TEST_TMPDIR}/binds")" -eq 4 ]] || false
+  grep -q "bind-key M-p run-shell /x/music.sh play-pause" "${TEST_TMPDIR}/binds" || false
+  grep -q "bind-key M-n run-shell /x/music.sh next" "${TEST_TMPDIR}/binds" || false
   grep -q "bind-key M-b run-shell /x/music.sh prev" "${TEST_TMPDIR}/binds"
+}
+
+@test "bindings.sh - a menu key of off binds no menu" {
+  # Arrange
+  _tmux_version() { echo "tmux 3.4"; }
+  _tmux() { echo "$*" >> "${TEST_TMPDIR}/binds"; }
+  set_tmux_option "@music_revamped_menu_key" "off"
+
+  # Act
+  music_bind_keys "/x/music.sh"
+
+  # Assert
+  [ ! -f "${TEST_TMPDIR}/binds" ]
+}
+
+@test "bindings.sh - music_menu lists play-pause, next and prev through the dispatcher" {
+  # Arrange
+  _tmux() { printf '%s\n' "$@" > "${TEST_TMPDIR}/menu"; }
+
+  # Act
+  music_menu "/x/music.sh"
+
+  # Assert
+  [[ "$(paste -sd'|' "${TEST_TMPDIR}/menu")" == "display-menu|-T|Music|Play/Pause|p|run-shell '/x/music.sh play-pause'|Next|n|run-shell '/x/music.sh next'|Previous|b|run-shell '/x/music.sh prev'" ]]
+}
+
+@test "bindings.sh - music_menu_command quotes a path with a space, a quote and a hash" {
+  # Arrange
+  local path="/it's a dir/#x/music.sh"
+
+  # Act
+  run music_menu_command "${path}" next
+
+  # Assert
+  [[ "${output}" == "run-shell '/it\\'\"'\"'s\\ a\\ dir/##x/music.sh next'" ]]
 }
 
 @test "bindings.sh - music_bind_keys does nothing on an old tmux" {

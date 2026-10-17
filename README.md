@@ -4,7 +4,7 @@
 
 **Now playing in your tmux status bar, without ever blocking the status render.**
 
-[![Tests](https://github.com/tmux-revamped/tmux-music-revamped/actions/workflows/tests.yml/badge.svg)](https://github.com/tmux-revamped/tmux-music-revamped/actions/workflows/tests.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Version](https://img.shields.io/badge/version-1.3.0-blue.svg)](CHANGELOG.md)
+[![Tests](https://github.com/tmux-revamped/tmux-music-revamped/actions/workflows/tests.yml/badge.svg)](https://github.com/tmux-revamped/tmux-music-revamped/actions/workflows/tests.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](CHANGELOG.md)
 
 </div>
 
@@ -66,9 +66,10 @@ Press `prefix + I` to install.
 | `@music_revamped_time_format` | `%s/%s` | format for elapsed and total time |
 | `@music_revamped_before` / `@music_revamped_after` | empty | formats placed around `#{music}` only while a track is playing or paused, for example a theme's pill opening and closing |
 | `@music_revamped_auto_hide` | `1` | set to `0` to keep showing the stop icon when nothing plays |
-| `@music_revamped_playpause_key` | `M-p` | prefix key that toggles play/pause |
-| `@music_revamped_next_key` | `M-n` | prefix key that skips to the next track |
-| `@music_revamped_prev_key` | `M-b` | prefix key that skips to the previous track |
+| `@music_revamped_menu_key` | `M-m` | prefix key that opens the playback menu; set to `off` to bind nothing |
+| `@music_revamped_playpause_key` | empty | prefix key that toggles play/pause, unbound until set, for example `M-p` |
+| `@music_revamped_next_key` | empty | prefix key that skips to the next track, unbound until set, for example `M-n` |
+| `@music_revamped_prev_key` | empty | prefix key that skips to the previous track, unbound until set, for example `M-b` |
 
 ### Render mode
 
@@ -102,22 +103,23 @@ is active the placeholders render empty.
 
 ## Controls
 
-Three prefix key bindings control playback through the first control backend
-present: playerctl, then cmus, then Spotify via AppleScript on macOS. With
-playerctl, the keys act on the same player the readout shows. `nowplaying-cli`
-only reads, so on macOS the keys still go through playerctl, cmus or
-AppleScript.
+`prefix + M-m` opens a menu with play / pause, next track and previous track.
+Playback goes through the first control backend present: playerctl, then cmus,
+then Spotify via AppleScript on macOS. With playerctl, the controls act on the
+same player the readout shows. `nowplaying-cli` only reads, so on macOS the
+controls still go through playerctl, cmus or AppleScript.
 
 | Key | Action |
 |-----|--------|
-| `prefix + M-p` | play / pause |
-| `prefix + M-n` | next track |
-| `prefix + M-b` | previous track |
+| `prefix + M-m` | playback menu |
 
-Rebind any of them, for example:
+Each control can also have its own key. They ship unbound, so set the ones you
+want:
 
 ```tmux
-set -g @music_revamped_playpause_key 'C-Space'
+set -g @music_revamped_playpause_key 'M-p'
+set -g @music_revamped_next_key 'M-n'
+set -g @music_revamped_prev_key 'M-b'
 ```
 
 When several players run at once, every reading and control targets the one that

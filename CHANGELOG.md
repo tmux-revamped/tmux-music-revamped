@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-10-17
+
 ### Added
 
 - `@music_revamped_render 'options'` replaces the `#()` calls with tmux option
@@ -19,6 +21,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** `prefix + M-m` opens a new playback menu with play / pause,
+  next and previous, set by `@music_revamped_menu_key`. Play / pause `M-p`,
+  next `M-n` and previous `M-b` are unbound by default; set
+  `@music_revamped_playpause_key`, `@music_revamped_next_key` and
+  `@music_revamped_prev_key` to bring them back.
 - The options-mode background process reads every option it needs in one tmux
   call per tick, sends its cache writes and published values in a second, and
   keeps its functions out of the environment of the commands it runs. Options
