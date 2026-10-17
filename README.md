@@ -8,7 +8,7 @@
 
 </div>
 
-**7** placeholders · **4** backends · **126** tests · **95%+** coverage
+**7** placeholders · **4** backends · **95%+** coverage
 
 Show the current track, a progress bar, and elapsed and total time across multiple media backends. Players are queried in a detached background worker, so the status line reads a cached value and returns instantly with no temp files.
 
@@ -22,7 +22,7 @@ Built from
 </tr>
 <tr>
 <td><b>Multiple players</b><br/>nowplaying-cli on macOS, playerctl and cmus on Linux, plus Spotify via AppleScript.</td>
-<td><b>Tested</b><br/>126 bats tests hold coverage at 95%+ across the shell sources.</td>
+<td><b>Tested</b><br/>bats tests hold coverage at 95%+ across the shell sources.</td>
 </tr>
 </table>
 
