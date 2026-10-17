@@ -11,11 +11,14 @@ source "${_MUSIC_RENDER_DIR}/../tmux/tmux-ops.sh"
 
 # _music_truncate TEXT MAX -> TEXT shortened to MAX characters with an ellipsis.
 _music_truncate() {
-  local text="${1}" max="${2}"
+  local text="${1}" max="${2}" cut tail
   [[ "${max}" =~ ^[0-9]+$ ]] || { echo "${text}"; return 0; }
   (( max <= 0 )) && { echo "${text}"; return 0; }
   if (( ${#text} > max )); then
-    echo "${text:0:max}..."
+    cut="${text:0:max}"
+    tail="${cut##*[!#]}"
+    (( ${#tail} % 2 == 1 )) && cut="${cut%#}"
+    echo "${cut}..."
   else
     echo "${text}"
   fi

@@ -30,6 +30,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   config reloads do, found no placeholders left in the status line and
   published nothing, which froze every value. A metric whose option read is
   already on the status line now counts as used.
+- A song title or artist containing `#` reached the status line unescaped, so
+  track metadata could inject a tmux format, including a `#()` command. Title
+  and artist now have every `#` doubled before they are cached, and truncation
+  never splits a doubled pair.
 
 ## [1.3.0] - 2026-06-29
 

@@ -38,8 +38,8 @@ music_refresh() {
     lines+=("${line}")
   done < <(read_music)
   cache_set status "$(music_norm_status "${lines[0]:-}")"
-  cache_set title "${lines[1]:-}"
-  cache_set artist "${lines[2]:-}"
+  cache_set title "$(publish_escape "${lines[1]:-}")"
+  cache_set artist "$(publish_escape "${lines[2]:-}")"
   cache_set position "${lines[3]:-0}"
   cache_set duration "${lines[4]:-0}"
 }

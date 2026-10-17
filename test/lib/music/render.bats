@@ -28,6 +28,17 @@ teardown() {
   [[ "$(_music_truncate "anything" zz)" == "anything" ]]
 }
 
+@test "render.sh - _music_truncate never splits an escaped hash pair" {
+  # Arrange
+  local escaped="ab##cd"
+
+  # Act
+  run _music_truncate "${escaped}" 3
+
+  # Assert
+  [[ "${output}" == "ab..." ]]
+}
+
 @test "render.sh - music_render_now is empty without a title" {
   [[ -z "$(music_render_now "" "")" ]]
 }

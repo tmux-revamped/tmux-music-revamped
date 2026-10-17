@@ -182,3 +182,15 @@ teardown() {
 
   [[ "$(cat "${TEST_TMPDIR}/spawn")" == *"/src/music.sh" ]]
 }
+
+@test "music.sh dispatcher - music_refresh doubles a hash in the title and artist" {
+  # Arrange
+  read_music() { printf 'Playing\nSong #(touch pwned)\nBand #[fg=red]\n30\n200\n'; }
+
+  # Act
+  music_refresh
+
+  # Assert
+  [[ "$(cache_get title)" == "Song ##(touch pwned)" ]] || false
+  [[ "$(cache_get artist)" == "Band ##[fg=red]" ]]
+}
