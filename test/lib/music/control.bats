@@ -107,11 +107,18 @@ teardown() {
   [[ -z "${output}" ]]
 }
 
-@test "control.sh - music_control is a no-op without any backend" {
+@test "control.sh - music_control says so without any player to control" {
+  # Arrange
   _PLATFORM_OS_CACHE="Linux"
   has_command() { return 1; }
+  _control_say() { printf 'said: %s\n' "$1"; }
+
+  # Act
   run music_control play-pause
-  [[ -z "${output}" ]]
+
+  # Assert
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == "said: no player to control. install playerctl or cmus" ]]
 }
 
 @test "control.sh - backend seams are callable without launching a player" {

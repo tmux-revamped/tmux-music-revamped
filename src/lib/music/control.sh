@@ -48,6 +48,8 @@ _control_playerctl() {
 _control_cmus() { cmus-remote "${1}" 2>/dev/null; }
 _control_osascript() { osascript -e "tell application \"Spotify\" to ${1}" 2>/dev/null; }
 
+_control_say() { tmux display-message "music-revamped: ${1}" 2>/dev/null || true; }
+
 music_control_backend() {
   if has_command playerctl; then
     echo "playerctl"
@@ -76,6 +78,7 @@ music_control() {
       _control_osascript "${arg}"
       ;;
     *)
+      _control_say "no player to control. install playerctl or cmus"
       return 0
       ;;
   esac
@@ -87,5 +90,6 @@ export -f _control_osascript_cmd
 export -f _control_playerctl
 export -f _control_cmus
 export -f _control_osascript
+export -f _control_say
 export -f music_control_backend
 export -f music_control

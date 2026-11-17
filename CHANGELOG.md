@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- A control key or menu item did nothing, in silence, on a machine with no player
+  to control. It now says so in a message.
+
 ## [2.0.0] - 2026-10-17
 
 ### Added
