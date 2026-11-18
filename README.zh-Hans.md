@@ -4,59 +4,48 @@
 
 <strong>在 tmux 状态栏显示正在播放的曲目，从不阻塞状态栏渲染。</strong>
 
-[English](README.md) | [日本語](README.ja.md) | 简体中文 | [繁體中文（香港）](README.zh-HK.md)
+[English](README.md) &nbsp;|&nbsp; [日本語](README.ja.md) &nbsp;|&nbsp; 简体中文 &nbsp;|&nbsp; [繁體中文（香港）](README.zh-HK.md)
 
-[![family](https://img.shields.io/github/actions/workflow/status/tmux-revamped/tmux-music-revamped/family.yml?branch=main&style=flat-square&label=family)](https://github.com/tmux-revamped/tmux-music-revamped/actions/workflows/family.yml)
-[![tests](https://img.shields.io/github/actions/workflow/status/tmux-revamped/tmux-music-revamped/tests.yml?branch=main&style=flat-square&label=tests)](https://github.com/tmux-revamped/tmux-music-revamped/actions/workflows/tests.yml)
+[![ci](https://img.shields.io/github/actions/workflow/status/tmux-revamped/tmux-music-revamped/ci.yml?branch=main&style=flat-square&label=ci)](https://github.com/tmux-revamped/tmux-music-revamped/actions/workflows/ci.yml)
 [![release](https://img.shields.io/github/v/release/tmux-revamped/tmux-music-revamped?style=flat-square&label=release)](https://github.com/tmux-revamped/tmux-music-revamped/releases/latest)
 [![openssf scorecard](https://img.shields.io/ossf-scorecard/github.com/tmux-revamped/tmux-music-revamped?style=flat-square&label=openssf%20scorecard)](https://scorecard.dev/viewer/?uri=github.com/tmux-revamped/tmux-music-revamped)
 [![license](https://img.shields.io/github/license/tmux-revamped/tmux-music-revamped?style=flat-square&label=license)](LICENSE)
 
 <p align="center">
-  <a href="#what-it-does">功能</a> |
-  <a href="#installation">安装</a> |
-  <a href="#usage">用法</a> |
-  <a href="#configuration">配置</a> |
-  <a href="#key-bindings">按键绑定</a> |
-  <a href="#how-it-works">工作原理</a>
+  <a href="#快速开始"><strong>快速开始</strong></a> &nbsp;|&nbsp;
+  <a href="#用法">用法</a> &nbsp;|&nbsp;
+  <a href="#工作原理">工作原理</a> &nbsp;|&nbsp;
+  <a href="#界面">界面</a>
 </p>
 
 </div>
+
+<p align="center">
+  <img src="screens/hero.gif" alt="music-revamped 在状态栏中显示曲目，通过菜单和按键切歌与暂停，截断过长的名称，并切换到 options 渲染模式" width="800">
+</p>
+
+```console
+$ music-revamped refresh
+Refreshed. So What is playing.
+$ music-revamped status now
+So What - Miles Davis
+```
 
 **7** 个占位符，**4** 种播放器后端，默认只绑定 **1** 个按键，支持 tmux **3.2** 及以上版本。
 
 ---
 
-<a id="what-it-does"></a>
+## 快速开始
 
-## 功能
+### 前提条件
 
-插件在状态栏显示当前曲目、播放状态、进度条以及已播放时间和总时长。播放器在后台查询，所以状态栏只读取缓存的值，从不等待播放器。缓存值保存在 tmux 选项中，不写入任何临时文件。
+| 工具 | 版本 | 用途 |
+|:-----|:--------|:---------|
+| tmux | 3.2 或更高 | 家族的最低版本 |
+| 播放器 | 四种之一 | macOS 上的 `nowplaying-cli`、`playerctl`、`cmus-remote`，或 macOS 上通过 `osascript` 控制的 Spotify |
+| gum | 可选 | `music-revamped` 的菜单、表格和颜色；没有它，所有命令都输出纯文本 |
 
-`prefix + M-m` 打开的菜单可以播放、暂停和切换曲目。
-
-| 后端 | 平台 | 读取 | 控制 |
-|:-----|:-----|:----:|:----:|
-| `nowplaying-cli` | macOS | Yes | No |
-| `playerctl` | Linux | Yes | Yes |
-| `cmus-remote` | Linux 和 macOS | Yes | Yes |
-| 通过 `osascript` 控制的 Spotify | macOS | Yes | Yes |
-
-<a id="requirements"></a>
-
-## 环境要求
-
-| 依赖 | 版本 |
-|:-----|:-----|
-| tmux | 3.2 及以上 |
-| bash | 3.2 及以上 |
-| 播放器后端 | 上表中的任意一个 |
-
-可在 Linux 和 macOS 上运行，支持 BSD、GNU 或 uutils coreutils。在 macOS 上，Spotify 无需额外安装软件包，安装 `nowplaying-cli` 后可支持其他所有播放器。
-
-<a id="installation"></a>
-
-## 安装
+### 安装
 
 使用 [TPM](https://github.com/tmux-plugins/tpm) 时，把插件加入 `~/.tmux.conf`，然后按 `prefix + I`：
 
@@ -74,9 +63,26 @@ git clone https://github.com/tmux-revamped/tmux-music-revamped ~/.tmux/plugins/t
 run-shell ~/.tmux/plugins/tmux-music-revamped/music-revamped.tmux
 ```
 
-<a id="usage"></a>
+在克隆的目录中运行 `make install`，还会把 `music-revamped` 放进 `~/.local/bin`，把它的 man 手册和补全放在 `~/.local/share` 下。
+
+### 验证
+
+```bash
+~/.tmux/plugins/tmux-music-revamped/bin/music-revamped doctor
+```
 
 ## 用法
+
+插件在状态栏显示当前曲目、播放状态、进度条以及已播放时间和总时长。播放器在后台查询，所以状态栏只读取缓存的值，从不等待播放器。缓存值保存在 tmux 选项中，不写入任何临时文件。
+
+`prefix + M-m` 打开的菜单可以播放、暂停和切换曲目。
+
+| 后端 | 平台 | 读取 | 控制 |
+|:-----|:-----|:----:|:----:|
+| `nowplaying-cli` | macOS | Yes | No |
+| `playerctl` | Linux | Yes | Yes |
+| `cmus-remote` | Linux 和 macOS | Yes | Yes |
+| 通过 `osascript` 控制的 Spotify | macOS | Yes | Yes |
 
 在插件加载之前，把占位符写进 `status-left` 或 `status-right`：
 
@@ -97,9 +103,24 @@ set -g status-left '#{music_icon} #{music} '
 
 找不到播放器时，所有占位符都显示为空。完整示例见 [`examples/status-left.tmux.conf`](examples/status-left.tmux.conf)。
 
-<a id="configuration"></a>
+| 命令 | 作用 |
+|:--------|:-------------|
+| `music-revamped apply` | 立即绑定按键并替换占位符；插件加载时入口点会运行它 |
+| `music-revamped list` | 打印 `apply` 会发送的每条命令，不做任何修改；`--json` 输出一个对象 |
+| `music-revamped status NAME` | 打印一个占位符：`now`、`icon`、`status`、`title`、`artist`、`progress` 或 `time`；状态栏会运行它 |
+| `music-revamped refresh` | 立即读取播放器，并说明正在播放的内容 |
+| `music-revamped play-pause` | 播放或暂停 |
+| `music-revamped next` | 跳到下一首 |
+| `music-revamped prev` | 回到上一首 |
+| `music-revamped daemon` | 为 `options` 渲染模式在每个周期发布占位符；由 `apply` 启动 |
+| `music-revamped doctor` | 每个依赖一行，包括读取的播放器、控制的播放器和保持不动的按键 |
+| `music-revamped version` | 版本，然后是 tmux 版本 |
+| `music-revamped help` | 帮助页；`man music-revamped` 记录相同的命令和设置 |
+| `music-revamped` | 在终端上显示菜单 |
 
 ## 配置
+
+每个选项也可以用带连字符的命令选项（例如 `--max-len 25`）和环境变量（例如 `MUSIC_REVAMPED_MAX_LEN`）设置；命令行优先于环境变量，环境变量优先于 tmux 选项。空的 tmux 选项表示使用默认值。传给 `apply` 的选项会随每个绑定、每个菜单项和每次状态调用一起生效。
 
 ### 显示选项
 
@@ -151,8 +172,6 @@ set -g @music_revamped_render 'options'
 | `@music_revamped_out_<metric>` | `options` 模式下每个已发布指标的渲染结果 |
 | `@music_revamped_ticker_pid` | 负责发布的后台进程的进程 ID |
 
-<a id="key-bindings"></a>
-
 ## 按键绑定
 
 | 按键 | 操作 | 默认 |
@@ -170,11 +189,11 @@ set -g @music_revamped_next_key 'M-n'
 set -g @music_revamped_prev_key 'M-b'
 ```
 
-<a id="how-it-works"></a>
+<a id="工作原理"></a>
 
 ## 工作原理
 
-[`music-revamped.tmux`](music-revamped.tmux) 把 `status-left` 和 `status-right` 中的每个占位符替换为对 [`src/music.sh`](src/music.sh) 的调用，在 `options` 模式下则替换为选项读取。然后绑定按键。
+[`music-revamped.tmux`](music-revamped.tmux) 把 `status-left` 和 `status-right` 中的每个占位符替换为对 [`bin/music-revamped`](bin/music-revamped) 的调用，在 `options` 模式下则替换为选项读取。然后绑定按键。
 
 脚本从第一个可用的后端读取：先是 macOS 上的 `nowplaying-cli`，然后是报告了播放器的 `playerctl`，再是 `cmus-remote`，最后是 macOS 上通过 `osascript` 控制的 Spotify。使用 `playerctl` 时，正在播放的播放器优先于其他播放器，控制操作也作用于同一个播放器。由于 `nowplaying-cli` 只能读取，控制依次使用 `playerctl`、`cmus-remote` 和 Spotify。
 
@@ -182,23 +201,91 @@ set -g @music_revamped_prev_key 'M-b'
 
 标题和艺术家中的每个 `#` 在到达状态栏之前都会被加倍，所以曲目名称无法注入 tmux 格式。
 
-<a id="development"></a>
+<a id="界面"></a>
+
+## 界面
+
+<details>
+<summary>所有界面，在真实的 tmux 中用 <code>make screens</code> 录制，每个按键显示在状态栏上</summary>
+<br>
+
+<table>
+<tr>
+<td width="50%" valign="top"><img src="screens/playing.png" alt="music-revamped：状态栏中的曲目、进度和时间"><br><sub>状态栏中的曲目、进度和时间，来自 <code>hero.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/menu.png" alt="music-revamped：prefix M-m 打开播放菜单"><br><sub><code>prefix M-m</code> 打开播放菜单，来自 <code>hero.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/next.png" alt="music-revamped：菜单中的 n 跳到下一首"><br><sub>菜单中的 <code>n</code> 跳到下一首，来自 <code>hero.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/paused.png" alt="music-revamped：播放或暂停键 prefix M-p 暂停播放"><br><sub>播放或暂停键 <code>prefix M-p</code> 暂停播放，来自 <code>hero.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/previous.png" alt="music-revamped：上一首键 prefix M-b 回到上一首"><br><sub>上一首键 <code>prefix M-b</code> 回到上一首，来自 <code>hero.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/cut.png" alt="music-revamped：@music_revamped_max_len 截断标题和艺术家"><br><sub><code>@music_revamped_max_len</code> 截断标题和艺术家，来自 <code>hero.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/options.png" alt="music-revamped：在 options 渲染模式下，每个占位符读取一个 tmux 选项"><br><sub>在 <code>options</code> 渲染模式下，每个占位符读取一个 tmux 选项，来自 <code>hero.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/options-next.png" alt="music-revamped：在该模式下，下一首键 prefix M-n 的效果立即显示"><br><sub>在该模式下，下一首键 <code>prefix M-n</code> 的效果立即显示，来自 <code>hero.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/list.png" alt="music-revamped：list 打印每个绑定"><br><sub><code>list</code> 打印每个绑定，来自 <code>stills.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/status.png" alt="music-revamped：status now 打印曲目"><br><sub><code>status now</code> 打印曲目，来自 <code>stills.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/doctor.png" alt="music-revamped：doctor"><br><sub><code>doctor</code>，来自 <code>stills.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/plain-menu.png" alt="music-revamped：没有 gum 的菜单"><br><sub>没有 gum 的菜单，来自 <code>stills.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/plain-doctor.png" alt="music-revamped：从菜单运行 doctor"><br><sub>从菜单运行 <code>doctor</code>，来自 <code>stills.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/version.png" alt="music-revamped：版本"><br><sub>版本，来自 <code>stills.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/error.png" alt="music-revamped：未知命令"><br><sub>未知命令，来自 <code>stills.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/accent.png" alt="music-revamped：来自 MUSIC_REVAMPED_ACCENT 的强调色"><br><sub>来自 <code>MUSIC_REVAMPED_ACCENT</code> 的强调色，来自 <code>stills.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/themes.png" alt="music-revamped：六种主题下的标题"><br><sub>六种主题下的标题，来自 <code>themes.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/help.png" alt="music-revamped：帮助页"><br><sub>帮助页，来自 <code>help.tape</code></sub></td>
+</tr>
+</table>
+
+录制时运行的是真实的插件和 tmux。播放器由一个小脚本代替，按键确实在操作它。
+
+</details>
+
+## 可移植性
+
+插件是 POSIX `sh`。CI 在下面每一行上运行全部测试。
+
+| Shell | 状态 |
+|:------|:-------|
+| `dash`、macOS 上的 `/bin/sh` | 支持 |
+| `bash` 3.2 和 5.x、系统自带的 `zsh` 和 Homebrew 的 `zsh` | 支持 |
+
+| 系统 | 状态 |
+|:-------|:-------|
+| macOS | Apple Silicon 和 Intel 上的 Tahoe，使用系统自带的工具、Homebrew 的 GNU 工具和 Homebrew 的 uutils |
+| Linux | x86_64 和 arm64 上的 Ubuntu 26.04，使用 GNU coreutils、uutils 和 BusyBox |
 
 ## 开发
 
-| 命令 | 作用 |
-|:-----|:-----|
-| `make test` | 运行 bats 测试套件 |
-| `make lint` | 对所有 shell 文件运行 shellcheck |
-| `make coverage` | 在 Linux 上用 kcov 测量行覆盖率，低于 95% 时失败 |
+| 命令 | 运行内容 |
+|:--------|:-------------|
+| `make fmt` | 对每个脚本运行 shfmt `-i 2` |
+| `make lint` | shfmt、ShellCheck、mandoc、yamllint 和 actionlint，零告警 |
+| `make test` | 在系统 `sh` 下运行 bats 测试 |
+| `make test-all` | 在每个已安装的 shell 下运行测试，macOS 上包括 bash 和 zsh 的两种构建 |
+| `make test-linux` | 在 Ubuntu 容器中运行测试 |
+| `make coverage` | 在这台 Mac 和 Ubuntu 容器中运行 bashcov，合并后以 100% 为门槛 |
+| `make screens` | 用 VHS 在 tmux 中从真实插件录制上面的界面，在 macOS 上运行 |
+| `make install` | 把命令、man 手册和补全安装到 `PREFIX` 下 |
 
-变更记录见 [CHANGELOG.md](CHANGELOG.md)。
+在 macOS 上，运行 `brew bundle` 会根据 [`Brewfile`](Brewfile) 安装这些目标用到的所有工具。
 
-<a id="license"></a>
+提交遵循 Conventional Commits 格式，直接进入 `main`。`main` 上的 `ci` 通过后，`release.yml` 运行 semantic-release：自上一个标签以来的每个 `feat` 或 `fix` 都会发布新版本，更新版本常量，并把说明写进 [`CHANGELOG.md`](CHANGELOG.md)。
 
 ## 许可证
 
-[MIT](LICENSE)
+[MIT](LICENSE)，copyright Gustavo Franco。
 
 <!-- family:begin -->
 

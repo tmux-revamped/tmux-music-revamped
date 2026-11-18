@@ -1,0 +1,209 @@
+.TH MUSIC-REVAMPED 1 "2026-11-17" "music-revamped" "User Commands"
+.SH NAME
+music-revamped \- now playing in the tmux status bar
+.SH SYNOPSIS
+.B music-revamped
+.RI [ options ]
+.I command
+.RI [ name ]
+.SH DESCRIPTION
+.B music-revamped
+shows the track that is playing, its state, a progress bar and its times in
+the tmux status line, and binds keys that play, pause and skip. The track
+comes from the first source present: nowplaying-cli on macOS, playerctl when
+a player answers it, cmus, then Spotify through osascript on macOS. With
+playerctl the player that is playing wins, and the keys act on that player.
+.PP
+The entry point
+.B music-revamped.tmux
+runs
+.B apply
+once when tmux loads the plugin, which binds the menu key and every other key
+that is set, in one tmux call, and replaces the placeholders #{music},
+#{music_icon}, #{music_status}, #{music_title}, #{music_artist},
+#{music_progress} and #{music_time} in status-left and status-right.
+.PP
+A status call prints the stored reading at once. When that reading is older
+than the interval it starts one reading in the background, so the status line
+never waits. A key with no player to control says so in a tmux message. Run
+with no command on a terminal, the tool offers a menu.
+.SH COMMANDS
+.TP
+.B apply
+Bind the keys and replace the status placeholders now. In the options render mode it also starts the daemon.
+.TP
+.B list
+Print every tmux command apply would send, one per line, and change nothing.
+.TP
+.B status
+Print one placeholder from the stored reading: now, icon, status, title, artist, progress or time. The status line runs it, and it starts a reading in the background when the stored one is older than the interval.
+.TP
+.B refresh
+Read the player now, store the reading for the status line, and say what is playing.
+.TP
+.B play-pause
+Play or pause the player.
+.TP
+.B next
+Skip to the next track.
+.TP
+.B prev
+Go back to the previous track.
+.TP
+.B daemon
+Read the player and publish every placeholder the status line uses, once per interval, until another daemon takes over or the tmux server ends. apply starts it in the options render mode.
+.TP
+.B doctor
+Print one row per dependency: tmux, the player it reads, the player it controls, the keys it found bound, gum and the core tools. Exits 1 only when a required tool is missing.
+.TP
+.B version
+Print the version, then the tmux version.
+.TP
+.B help
+Print the help page.
+.SH OPTIONS
+.TP
+.B \-\-json
+.B list
+prints one JSON object.
+.TP
+.BI \-\-theme " name"
+Colours of the terminal interface:
+.BR kodougu ,
+.BR catppuccin\-mocha ,
+.BR catppuccin\-latte ,
+.BR dracula ,
+.BR nord ,
+.BR gruvbox ,
+.B tokyo\-night
+or
+.BR mono .
+The default is
+.BR kodougu .
+.TP
+.BI \-\- setting " value"
+Any tmux option below, named with dashes, such as
+.B \-\-interval
+or
+.BR \-\-max\-len .
+It also takes the form
+.IR \-\-setting = value ,
+and outranks the environment and the tmux option. Given to
+.BR apply ,
+it rides on every binding, every menu item and every status call.
+.SH ENVIRONMENT
+.TP
+.BI MUSIC_REVAMPED_ SETTING
+Any tmux option below in capitals, such as
+.BR MUSIC_REVAMPED_INTERVAL .
+It outranks the tmux option.
+.TP
+.B MUSIC_REVAMPED_THEME
+The theme when
+.B \-\-theme
+is not given.
+.TP
+.B MUSIC_REVAMPED_ACCENT
+A colour such as #CBA6F7 that replaces the accent of the theme.
+.TP
+.B KODOUGU_THEME
+The theme of every kodougu and tmux-revamped tool, when neither
+.B \-\-theme
+nor
+.B MUSIC_REVAMPED_THEME
+is set.
+.TP
+.B KODOUGU_ACCENT
+The accent of every kodougu and tmux-revamped tool, when
+.B MUSIC_REVAMPED_ACCENT
+is not set.
+.TP
+.B NO_COLOR
+Turns colour off in every theme.
+.SH TMUX OPTIONS
+An empty tmux option means its default. A key set to off binds nothing.
+.TP
+.B @music_revamped_menu_key
+The prefix key that opens the playback menu. off binds nothing. The default is M\-m, left alone when someone else holds it.
+.TP
+.B @music_revamped_playpause_key
+The prefix key that plays or pauses. The default is none.
+.TP
+.B @music_revamped_next_key
+The prefix key that skips to the next track. The default is none.
+.TP
+.B @music_revamped_prev_key
+The prefix key that goes back to the previous track. The default is none.
+.TP
+.B @music_revamped_interval
+Seconds a reading stays fresh before the player is read again. The default is 5.
+.TP
+.B @music_revamped_format
+The printf format for the title and the artist in #{music}. The default is %s \- %s.
+.TP
+.B @music_revamped_max_len
+Cut the title and the artist to this many characters and add three dots. 0 keeps them whole. The default is 0.
+.TP
+.B @music_revamped_before
+Text placed before #{music} when there is a track to show. The default is none.
+.TP
+.B @music_revamped_after
+Text placed after #{music} when there is a track to show. The default is none.
+.TP
+.B @music_revamped_auto_hide
+1 hides the icon unless a track is playing or paused. 0 always shows it. The default is 1.
+.TP
+.B @music_revamped_playing_icon
+The icon while playing. The default is >.
+.TP
+.B @music_revamped_paused_icon
+The icon while paused. The default is ||.
+.TP
+.B @music_revamped_stopped_icon
+The icon while stopped. The default is [].
+.TP
+.B @music_revamped_unknown_icon
+The icon when the state is unknown. The default is none.
+.TP
+.B @music_revamped_progress_width
+Cells in the progress bar. The default is 10, and 200 at most.
+.TP
+.B @music_revamped_progress_full
+The filled cell of the progress bar. The default is a full block.
+.TP
+.B @music_revamped_progress_empty
+The empty cell of the progress bar. The default is a light shade.
+.TP
+.B @music_revamped_time_format
+The printf format for elapsed and total time. The default is %s/%s.
+.TP
+.B @music_revamped_render
+jobs turns each placeholder into a call the status line runs. options turns it into a read of a tmux option that the daemon fills, so a status refresh starts no process. The default is jobs.
+.TP
+.B @revamped_theme
+The theme of every tmux-revamped tool, when nothing else sets one. The default
+is
+.BR kodougu .
+.PP
+The stored reading lives in
+.BR @music_revamped_status ,
+.BR _status_ts ,
+.BR _status_lock ,
+.BR _title ,
+.BR _artist ,
+.B _position
+and
+.BR _duration .
+apply records the placeholders the status line uses in
+.BR @music_revamped_published ,
+the daemon writes each one to
+.BI @music_revamped_out_ name
+and keeps its process id in
+.BR @music_revamped_ticker_pid .
+.SH EXIT STATUS
+0 on success, 1 on any failure.
+.SH SEE ALSO
+.BR tmux (1),
+.BR playerctl (1),
+.BR cmus\-remote (1),
+.BR gum (1)

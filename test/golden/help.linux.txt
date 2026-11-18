@@ -1,0 +1,97 @@
+$ music-revamped help
+music-revamped - now playing in the status bar
+
+usage:
+  music-revamped apply          bind the keys and fill the placeholders
+  music-revamped list           print what apply would send to tmux
+  music-revamped status NAME    print one placeholder: now, icon, status,
+                                title, artist, progress or time
+  music-revamped refresh        read the player now for the status line
+  music-revamped play-pause     play or pause
+  music-revamped next           skip to the next track
+  music-revamped prev           go back to the previous track
+  music-revamped daemon         publish the placeholders on every tick, for
+                                the options render mode
+  music-revamped doctor         check this machine
+  music-revamped version        print the version
+  music-revamped help           print this page
+
+keys:
+  --menu-key KEY             the prefix key for the playback menu, or off
+  --playpause-key KEY        the prefix key that plays or pauses
+  --next-key KEY             the prefix key for the next track
+  --prev-key KEY             the prefix key for the previous track
+
+status line:
+  --interval SECONDS         how long a reading stays fresh
+  --format FORMAT            printf format for the title and the artist
+  --max-len COUNT            cut the title and the artist at this many
+                             characters; 0 keeps them whole
+  --before TEXT              text before #{music} when a track shows
+  --after TEXT               text after #{music} when a track shows
+  --auto-hide 0|1            0 shows the icon with no track playing or paused
+  --playing-icon TEXT        the icon while playing
+  --paused-icon TEXT         the icon while paused
+  --stopped-icon TEXT        the icon while stopped
+  --unknown-icon TEXT        the icon when the state is unknown
+  --progress-width COUNT     cells of the progress bar
+  --progress-full TEXT       the bar's filled cell
+  --progress-empty TEXT      the bar's empty cell
+  --time-format FORMAT       printf format for elapsed and total time
+  --render MODE              jobs or options
+
+output:
+  --json                     list prints one JSON object
+  --theme NAME               the look: kodougu, catppuccin-mocha,
+                             catppuccin-latte, dracula, nord, gruvbox,
+                             tokyo-night or mono
+
+environment:
+  MUSIC_REVAMPED_<SETTING>   the same as the option of that name, such as
+                             MUSIC_REVAMPED_INTERVAL for --interval
+  MUSIC_REVAMPED_THEME       the look, when --theme is not given
+  MUSIC_REVAMPED_ACCENT      a colour such as #CBA6F7 for the accent
+  KODOUGU_THEME              the family look, when neither is given
+  KODOUGU_ACCENT             the family accent, when the tool's is unset
+  NO_COLOR                   turn colour off
+
+tmux options:
+  @music_revamped_menu_key         the playback menu key (default M-m)
+  @music_revamped_playpause_key    the play or pause key (default none)
+  @music_revamped_next_key         the next track key (default none)
+  @music_revamped_prev_key         the previous track key (default none)
+  @music_revamped_interval         seconds a reading stays fresh (default 5)
+  @music_revamped_format           format of #{music} (default "%s - %s")
+  @music_revamped_max_len          characters kept of title and artist
+                                   (default 0, all)
+  @music_revamped_before           text before #{music} (default none)
+  @music_revamped_after            text after #{music} (default none)
+  @music_revamped_auto_hide        1 hides the icon unless a track plays or
+                                   is paused (default 1)
+  @music_revamped_playing_icon     icon while playing (default >)
+  @music_revamped_paused_icon      icon while paused (default ||)
+  @music_revamped_stopped_icon     icon while stopped (default [])
+  @music_revamped_unknown_icon     icon for an unknown state (default none)
+  @music_revamped_progress_width   cells of the progress bar (default 10)
+  @music_revamped_progress_full    filled cell (default a full block)
+  @music_revamped_progress_empty   empty cell (default a light shade)
+  @music_revamped_time_format      format of #{music_time} (default "%s<path>
+  @music_revamped_render           jobs or options (default jobs)
+  @revamped_theme                  the family look (default kodougu)
+
+notes:
+  The placeholders #{music}, #{music_icon}, #{music_status}, #{music_title},
+  #{music_artist}, #{music_progress} and #{music_time} print the stored
+  reading at once, and start one background reading when it is older than
+  the interval. The track comes from nowplaying-cli on macOS, then playerctl,
+  then cmus, then Spotify through osascript. The keys act through playerctl,
+  cmus or Spotify. With --render options each placeholder reads a tmux option
+  that a background process fills on every tick, so a status refresh starts
+  no process.
+
+examples:
+  music-revamped status now
+  music-revamped play-pause
+  music-revamped --max-len 25 --before '[' --after ']' apply
+  music-revamped list --json
+exit 0

@@ -4,53 +4,48 @@
 
 <strong>Now playing in your tmux status bar, without ever blocking the status render.</strong>
 
-English | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁體中文（香港）](README.zh-HK.md)
+English &nbsp;|&nbsp; [日本語](README.ja.md) &nbsp;|&nbsp; [简体中文](README.zh-Hans.md) &nbsp;|&nbsp; [繁體中文（香港）](README.zh-HK.md)
 
-[![family](https://img.shields.io/github/actions/workflow/status/tmux-revamped/tmux-music-revamped/family.yml?branch=main&style=flat-square&label=family)](https://github.com/tmux-revamped/tmux-music-revamped/actions/workflows/family.yml)
-[![tests](https://img.shields.io/github/actions/workflow/status/tmux-revamped/tmux-music-revamped/tests.yml?branch=main&style=flat-square&label=tests)](https://github.com/tmux-revamped/tmux-music-revamped/actions/workflows/tests.yml)
+[![ci](https://img.shields.io/github/actions/workflow/status/tmux-revamped/tmux-music-revamped/ci.yml?branch=main&style=flat-square&label=ci)](https://github.com/tmux-revamped/tmux-music-revamped/actions/workflows/ci.yml)
 [![release](https://img.shields.io/github/v/release/tmux-revamped/tmux-music-revamped?style=flat-square&label=release)](https://github.com/tmux-revamped/tmux-music-revamped/releases/latest)
 [![openssf scorecard](https://img.shields.io/ossf-scorecard/github.com/tmux-revamped/tmux-music-revamped?style=flat-square&label=openssf%20scorecard)](https://scorecard.dev/viewer/?uri=github.com/tmux-revamped/tmux-music-revamped)
 [![license](https://img.shields.io/github/license/tmux-revamped/tmux-music-revamped?style=flat-square&label=license)](LICENSE)
 
 <p align="center">
-  <a href="#what-it-does">What it does</a> |
-  <a href="#installation">Installation</a> |
-  <a href="#usage">Usage</a> |
-  <a href="#configuration">Configuration</a> |
-  <a href="#key-bindings">Key bindings</a> |
-  <a href="#how-it-works">How it works</a>
+  <a href="#quick-start"><strong>Quick start</strong></a> &nbsp;|&nbsp;
+  <a href="#usage">Usage</a> &nbsp;|&nbsp;
+  <a href="#how-it-works">How it works</a> &nbsp;|&nbsp;
+  <a href="#screens">Screens</a>
 </p>
 
 </div>
+
+<p align="center">
+  <img src="screens/hero.gif" alt="music-revamped showing the track in the status line, skipping and pausing from its menu and keys, cutting long names and switching to the options render mode" width="800">
+</p>
+
+```console
+$ music-revamped refresh
+Refreshed. So What is playing.
+$ music-revamped status now
+So What - Miles Davis
+```
 
 **7** placeholders, **4** player backends, **1** key bound by default, tmux **3.2** or later.
 
 ---
 
-## What it does
+## Quick start
 
-The plugin shows the current track, its play state, a progress bar and the elapsed and total time in the status line. A player is queried in the background, so the status line reads a cached value and never waits on the player. Cached values live in tmux options, and no temp file is written.
+### Prerequisites
 
-A menu on `prefix + M-m` plays, pauses and skips tracks.
+| Tool | Version | Used for |
+|:-----|:--------|:---------|
+| tmux | 3.2 or later | the family floor |
+| a player | one of four | `nowplaying-cli` on macOS, `playerctl`, `cmus-remote`, or Spotify through `osascript` on macOS |
+| gum | optional | the menu, tables and colours of `music-revamped`; without it every command prints plain text |
 
-| Backend | Platform | Reads | Controls |
-|:--------|:---------|:-----:|:--------:|
-| `nowplaying-cli` | macOS | Yes | No |
-| `playerctl` | Linux | Yes | Yes |
-| `cmus-remote` | Linux and macOS | Yes | Yes |
-| Spotify through `osascript` | macOS | Yes | Yes |
-
-## Requirements
-
-| Requirement | Version |
-|:------------|:--------|
-| tmux | 3.2 or later |
-| bash | 3.2 or later |
-| A player backend | one from the table above |
-
-It runs on Linux and macOS with BSD, GNU or uutils coreutils. On macOS, Spotify works with no extra package, and `nowplaying-cli` adds every other player.
-
-## Installation
+### Install
 
 With [TPM](https://github.com/tmux-plugins/tpm), add the plugin to `~/.tmux.conf` and press `prefix + I`:
 
@@ -68,7 +63,26 @@ git clone https://github.com/tmux-revamped/tmux-music-revamped ~/.tmux/plugins/t
 run-shell ~/.tmux/plugins/tmux-music-revamped/music-revamped.tmux
 ```
 
+`make install` in the clone also puts `music-revamped` in `~/.local/bin`, with its man page and completions under `~/.local/share`.
+
+### Verify
+
+```bash
+~/.tmux/plugins/tmux-music-revamped/bin/music-revamped doctor
+```
+
 ## Usage
+
+The plugin shows the current track, its play state, a progress bar and the elapsed and total time in the status line. A player is queried in the background, so the status line reads a cached value and never waits on the player. Cached values live in tmux options, and no temp file is written.
+
+A menu on `prefix + M-m` plays, pauses and skips tracks.
+
+| Backend | Platform | Reads | Controls |
+|:--------|:---------|:-----:|:--------:|
+| `nowplaying-cli` | macOS | Yes | No |
+| `playerctl` | Linux | Yes | Yes |
+| `cmus-remote` | Linux and macOS | Yes | Yes |
+| Spotify through `osascript` | macOS | Yes | Yes |
 
 Put placeholders in `status-left` or `status-right` before the plugin loads:
 
@@ -89,7 +103,24 @@ set -g status-left '#{music_icon} #{music} '
 
 When no player is found, every placeholder renders empty. [`examples/status-left.tmux.conf`](examples/status-left.tmux.conf) holds a complete example.
 
+| Command | What it does |
+|:--------|:-------------|
+| `music-revamped apply` | Binds the keys and fills the placeholders now; the entry point runs it when tmux loads the plugin |
+| `music-revamped list` | Prints every command `apply` would send and changes nothing; `--json` prints one object |
+| `music-revamped status NAME` | Prints one placeholder, `now`, `icon`, `status`, `title`, `artist`, `progress` or `time`; the status line runs it |
+| `music-revamped refresh` | Reads the player now and says what is playing |
+| `music-revamped play-pause` | Plays or pauses |
+| `music-revamped next` | Skips to the next track |
+| `music-revamped prev` | Goes back to the previous track |
+| `music-revamped daemon` | Publishes the placeholders on every tick, for the `options` render mode; `apply` starts it |
+| `music-revamped doctor` | One row per dependency: the player it reads, the player it controls and any key left alone |
+| `music-revamped version` | The version, then the tmux version |
+| `music-revamped help` | The help page; `man music-revamped` documents the same commands and settings |
+| `music-revamped` | On a terminal, a menu |
+
 ## Configuration
+
+Every option is also a command option with dashes, such as `--max-len 25`, and an environment variable, such as `MUSIC_REVAMPED_MAX_LEN`; the command line wins over the environment, and the environment over the tmux option. An empty tmux option means its default. One given to `apply` rides on every binding, every menu item and every status call.
 
 ### Display options
 
@@ -158,9 +189,11 @@ set -g @music_revamped_next_key 'M-n'
 set -g @music_revamped_prev_key 'M-b'
 ```
 
+<a id="how-it-works"></a>
+
 ## How it works
 
-[`music-revamped.tmux`](music-revamped.tmux) replaces each placeholder in `status-left` and `status-right` with a call to [`src/music.sh`](src/music.sh), or with an option read in `options` mode. It then binds the keys.
+[`music-revamped.tmux`](music-revamped.tmux) replaces each placeholder in `status-left` and `status-right` with a call to [`bin/music-revamped`](bin/music-revamped), or with an option read in `options` mode. It then binds the keys.
 
 The script reads from the first backend present: `nowplaying-cli` on macOS, then `playerctl` when it reports a player, then `cmus-remote`, then Spotify through `osascript` on macOS. With `playerctl`, the player that is playing wins over the others, and the controls act on that same player. Controls go through `playerctl`, then `cmus-remote`, then Spotify, because `nowplaying-cli` only reads.
 
@@ -168,19 +201,91 @@ Readings are stored as tmux options and reused for `@music_revamped_interval` se
 
 Titles and artists have every `#` doubled before they reach the status line, so a track name cannot inject a tmux format.
 
+<a id="screens"></a>
+
+## Screens
+
+<details>
+<summary>Every screen, recorded inside a real tmux with <code>make screens</code>, with each key on the status line</summary>
+<br>
+
+<table>
+<tr>
+<td width="50%" valign="top"><img src="screens/playing.png" alt="music-revamped: The track, its progress and its times in the status line"><br><sub>The track, its progress and its times in the status line, from <code>hero.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/menu.png" alt="music-revamped: prefix M-m opens the playback menu"><br><sub><code>prefix M-m</code> opens the playback menu, from <code>hero.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/next.png" alt="music-revamped: n, in the menu, skips to the next track"><br><sub><code>n</code>, in the menu, skips to the next track, from <code>hero.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/paused.png" alt="music-revamped: prefix M-p, the play or pause key, pauses"><br><sub><code>prefix M-p</code>, the play or pause key, pauses, from <code>hero.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/previous.png" alt="music-revamped: prefix M-b, the previous key, goes back a track"><br><sub><code>prefix M-b</code>, the previous key, goes back a track, from <code>hero.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/cut.png" alt="music-revamped: @music_revamped_max_len cuts the title and the artist"><br><sub><code>@music_revamped_max_len</code> cuts the title and the artist, from <code>hero.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/options.png" alt="music-revamped: In the options render mode each placeholder reads a tmux option"><br><sub>In the <code>options</code> render mode each placeholder reads a tmux option, from <code>hero.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/options-next.png" alt="music-revamped: prefix M-n, the next key, shows its effect at once in that mode"><br><sub><code>prefix M-n</code>, the next key, shows its effect at once in that mode, from <code>hero.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/list.png" alt="music-revamped: list prints every binding"><br><sub><code>list</code> prints every binding, from <code>stills.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/status.png" alt="music-revamped: status now prints the track"><br><sub><code>status now</code> prints the track, from <code>stills.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/doctor.png" alt="music-revamped: doctor"><br><sub><code>doctor</code>, from <code>stills.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/plain-menu.png" alt="music-revamped: The menu without gum"><br><sub>The menu without gum, from <code>stills.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/plain-doctor.png" alt="music-revamped: doctor from the menu"><br><sub><code>doctor</code> from the menu, from <code>stills.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/version.png" alt="music-revamped: The version"><br><sub>The version, from <code>stills.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/error.png" alt="music-revamped: An unknown command"><br><sub>An unknown command, from <code>stills.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/accent.png" alt="music-revamped: An accent from MUSIC_REVAMPED_ACCENT"><br><sub>An accent from <code>MUSIC_REVAMPED_ACCENT</code>, from <code>stills.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/themes.png" alt="music-revamped: The header in six themes"><br><sub>The header in six themes, from <code>themes.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/help.png" alt="music-revamped: The help page"><br><sub>The help page, from <code>help.tape</code></sub></td>
+</tr>
+</table>
+
+The recordings run the real plugin and tmux. A small script stands in for the player, and the keys really drive it.
+
+</details>
+
+## Portability
+
+The plugin is POSIX `sh`. CI runs every suite on each row below.
+
+| Shell | Status |
+|:------|:-------|
+| `dash`, `/bin/sh` on macOS | Supported |
+| `bash` 3.2 and 5.x, the system's `zsh` and Homebrew's | Supported |
+
+| System | Status |
+|:-------|:-------|
+| macOS | Tahoe on Apple Silicon and Intel, with the tools it ships, Homebrew's GNU tools and Homebrew's uutils |
+| Linux | Ubuntu 26.04 on x86_64 and arm64, with GNU coreutils, uutils and BusyBox |
+
 ## Development
 
-| Command | What it does |
+| Command | What it runs |
 |:--------|:-------------|
-| `make test` | Runs the bats suite |
-| `make lint` | Runs shellcheck on every shell file |
-| `make coverage` | Measures line coverage with kcov on Linux and fails below 95% |
+| `make fmt` | shfmt `-i 2` on every script |
+| `make lint` | shfmt, ShellCheck, mandoc, yamllint and actionlint, at zero findings |
+| `make test` | The bats suites under the system `sh` |
+| `make test-all` | The suites under every installed shell, both builds of bash and zsh on macOS |
+| `make test-linux` | The suites in an Ubuntu container |
+| `make coverage` | bashcov on this Mac and in the Ubuntu container, merged and gated at 100 percent |
+| `make screens` | The screens above, recorded from the real plugin inside tmux with VHS, on macOS |
+| `make install` | The command, its man page and completions under `PREFIX` |
 
-Changes are listed in [CHANGELOG.md](CHANGELOG.md).
+On macOS, `brew bundle` installs every tool these targets call, from the [`Brewfile`](Brewfile).
+
+Commits follow the conventional commit format and go straight to `main`. After a green `ci` run on `main`, `release.yml` runs semantic-release: every `feat` or `fix` since the last tag publishes a release, stamps the version constant and adds the notes to [`CHANGELOG.md`](CHANGELOG.md).
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE), copyright Gustavo Franco.
 
 <!-- family:begin -->
 

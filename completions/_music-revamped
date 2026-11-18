@@ -1,0 +1,48 @@
+#compdef music-revamped
+
+_music_revamped() {
+  local -a commands
+  commands=(
+    'apply:bind the keys and fill the status placeholders'
+    'list:print every command apply would send'
+    'status:print one placeholder'
+    'refresh:read the player now'
+    'play-pause:play or pause'
+    'next:skip to the next track'
+    'prev:go back to the previous track'
+    'daemon:publish the placeholders on every tick'
+    'doctor:check this machine'
+    'version:print the version'
+    'help:print the help page'
+  )
+
+  _arguments \
+    '--json[list prints one JSON object]' \
+    '--theme[colours of the terminal interface]:theme:(kodougu catppuccin-mocha catppuccin-latte dracula nord gruvbox tokyo-night mono)' \
+    '--menu-key[key of the playback menu]:value:' \
+    '--playpause-key[key that plays or pauses]:value:' \
+    '--next-key[key for the next track]:value:' \
+    '--prev-key[key for the previous track]:value:' \
+    '--interval[seconds a reading stays fresh]:value:' \
+    '--format[printf format for title and artist]:value:' \
+    '--max-len[characters kept of title and artist]:value:' \
+    '--before[text before the track]:value:' \
+    '--after[text after the track]:value:' \
+    '--auto-hide[hide the icon with no track]:value:(0 1)' \
+    '--playing-icon[icon while playing]:value:' \
+    '--paused-icon[icon while paused]:value:' \
+    '--stopped-icon[icon while stopped]:value:' \
+    '--unknown-icon[icon for an unknown state]:value:' \
+    '--progress-width[cells of the progress bar]:value:' \
+    '--progress-full[the bar'\''s filled cell]:value:' \
+    '--progress-empty[the bar'\''s empty cell]:value:' \
+    '--time-format[printf format for the times]:value:' \
+    '--render[jobs or options]:value:(jobs options)' \
+    '1:command:->command'
+
+  if [[ "${state}" == command ]]; then
+    _describe 'command' commands
+  fi
+}
+
+_music_revamped "$@"

@@ -1,0 +1,3 @@
+$ music-revamped --frobnicate
+music-revamped: unknown option '--frobnicate'. run 'music-revamped help' for usage.
+exit 1

@@ -1,0 +1,356 @@
+#!/bin/sh
+[ -n "${ZSH_VERSION:-}" ] && emulate sh
+set -eu
+
+music_revamped_self="$0"
+case "${music_revamped_self}" in
+*/*) ;;
+*) music_revamped_self="$(command -v -- "${music_revamped_self}")" ;;
+esac
+music_revamped_lib="$(cd "${music_revamped_self%/*}/../lib" && pwd)" || exit 1
+
+for music_revamped_inherited in $(env | sed -n -e 's/^\(REVAMPED_[A-Za-z0-9_]*\)=.*/\1/p' -e 's/^\(MUSIC_REVAMPED_[A-Za-z0-9_]*_LOADED\)=.*/\1/p'); do
+  case "${music_revamped_inherited}" in
+  REVAMPED_TEST_*) continue ;;
+  *) unset "${music_revamped_inherited}" ;;
+  esac
+done
+
+REVAMPED_LIB="${music_revamped_lib}"
+# shellcheck source=SCRIPTDIR/../lib/core.sh
+. "${REVAMPED_LIB}/core.sh"
+# shellcheck source=SCRIPTDIR/../lib/music.sh
+. "${REVAMPED_LIB}/music.sh"
+
+music_revamped_interface() {
+  # shellcheck disable=SC2034
+  REVAMPED_UI_NAME=music-revamped REVAMPED_UI_VERSION="${MUSIC_REVAMPED_VERSION}" REVAMPED_UI_TAGLINE="now playing in the status bar"
+  if [ -n "${MUSIC_REVAMPED_ACCENT:-}" ]; then
+    # shellcheck disable=SC2034
+    REVAMPED_UI_ACCENT_CHOICE="${MUSIC_REVAMPED_ACCENT}" REVAMPED_UI_ACCENT_NAME=MUSIC_REVAMPED_ACCENT
+  fi
+  # shellcheck source=SCRIPTDIR/../lib/cli.sh
+  . "${REVAMPED_LIB}/cli.sh"
+  # shellcheck source=SCRIPTDIR/../lib/doctor.sh
+  . "${REVAMPED_LIB}/doctor.sh"
+}
+
+music_revamped_usage() {
+  music_revamped_interface
+  revamped_cli_usage_error "$1"
+}
+
+music_revamped_bad() {
+  music_revamped_interface
+  revamped_cli_die "$1"
+}
+
+music_revamped_help() {
+  revamped_cli_help_page <<'HELP'
+music-revamped - now playing in the status bar
+
+usage:
+  music-revamped apply          bind the keys and fill the placeholders
+  music-revamped list           print what apply would send to tmux
+  music-revamped status NAME    print one placeholder: now, icon, status,
+                                title, artist, progress or time
+  music-revamped refresh        read the player now for the status line
+  music-revamped play-pause     play or pause
+  music-revamped next           skip to the next track
+  music-revamped prev           go back to the previous track
+  music-revamped daemon         publish the placeholders on every tick, for
+                                the options render mode
+  music-revamped doctor         check this machine
+  music-revamped version        print the version
+  music-revamped help           print this page
+
+keys:
+  --menu-key KEY             the prefix key for the playback menu, or off
+  --playpause-key KEY        the prefix key that plays or pauses
+  --next-key KEY             the prefix key for the next track
+  --prev-key KEY             the prefix key for the previous track
+
+status line:
+  --interval SECONDS         how long a reading stays fresh
+  --format FORMAT            printf format for the title and the artist
+  --max-len COUNT            cut the title and the artist at this many
+                             characters; 0 keeps them whole
+  --before TEXT              text before #{music} when a track shows
+  --after TEXT               text after #{music} when a track shows
+  --auto-hide 0|1            0 shows the icon with no track playing or paused
+  --playing-icon TEXT        the icon while playing
+  --paused-icon TEXT         the icon while paused
+  --stopped-icon TEXT        the icon while stopped
+  --unknown-icon TEXT        the icon when the state is unknown
+  --progress-width COUNT     cells of the progress bar
+  --progress-full TEXT       the bar's filled cell
+  --progress-empty TEXT      the bar's empty cell
+  --time-format FORMAT       printf format for elapsed and total time
+  --render MODE              jobs or options
+
+output:
+  --json                     list prints one JSON object
+  --theme NAME               the look: kodougu, catppuccin-mocha,
+                             catppuccin-latte, dracula, nord, gruvbox,
+                             tokyo-night or mono
+
+environment:
+  MUSIC_REVAMPED_<SETTING>   the same as the option of that name, such as
+                             MUSIC_REVAMPED_INTERVAL for --interval
+  MUSIC_REVAMPED_THEME       the look, when --theme is not given
+  MUSIC_REVAMPED_ACCENT      a colour such as #CBA6F7 for the accent
+  KODOUGU_THEME              the family look, when neither is given
+  KODOUGU_ACCENT             the family accent, when the tool's is unset
+  NO_COLOR                   turn colour off
+
+tmux options:
+  @music_revamped_menu_key         the playback menu key (default M-m)
+  @music_revamped_playpause_key    the play or pause key (default none)
+  @music_revamped_next_key         the next track key (default none)
+  @music_revamped_prev_key         the previous track key (default none)
+  @music_revamped_interval         seconds a reading stays fresh (default 5)
+  @music_revamped_format           format of #{music} (default "%s - %s")
+  @music_revamped_max_len          characters kept of title and artist
+                                   (default 0, all)
+  @music_revamped_before           text before #{music} (default none)
+  @music_revamped_after            text after #{music} (default none)
+  @music_revamped_auto_hide        1 hides the icon unless a track plays or
+                                   is paused (default 1)
+  @music_revamped_playing_icon     icon while playing (default >)
+  @music_revamped_paused_icon      icon while paused (default ||)
+  @music_revamped_stopped_icon     icon while stopped (default [])
+  @music_revamped_unknown_icon     icon for an unknown state (default none)
+  @music_revamped_progress_width   cells of the progress bar (default 10)
+  @music_revamped_progress_full    filled cell (default a full block)
+  @music_revamped_progress_empty   empty cell (default a light shade)
+  @music_revamped_time_format      format of #{music_time} (default "%s/%s")
+  @music_revamped_render           jobs or options (default jobs)
+  @revamped_theme                  the family look (default kodougu)
+
+notes:
+  The placeholders #{music}, #{music_icon}, #{music_status}, #{music_title},
+  #{music_artist}, #{music_progress} and #{music_time} print the stored
+  reading at once, and start one background reading when it is older than
+  the interval. The track comes from nowplaying-cli on macOS, then playerctl,
+  then cmus, then Spotify through osascript. The keys act through playerctl,
+  cmus or Spotify. With --render options each placeholder reads a tmux option
+  that a background process fills on every tick, so a status refresh starts
+  no process.
+
+examples:
+  music-revamped status now
+  music-revamped play-pause
+  music-revamped --max-len 25 --before '[' --after ']' apply
+  music-revamped list --json
+HELP
+}
+
+music_revamped_show_version() {
+  music_revamped_show_version_tmux=$(tmux -V 2>/dev/null) || music_revamped_show_version_tmux=missing
+  printf '%s %s\n' music-revamped "${MUSIC_REVAMPED_VERSION}"
+  printf 'tmux: %s\n' "${music_revamped_show_version_tmux#tmux }"
+}
+
+music_revamped_doctor_tool() {
+  music_revamped_doctor_tool_path=$(command -v "$2" 2>/dev/null) || music_revamped_doctor_tool_path=""
+  revamped_doctor_line "$1" ok "${music_revamped_doctor_tool_path}, $3"
+}
+
+music_revamped_doctor_source() {
+  music_revamped_source
+  case "${MUSIC_REVAMPED_SOURCE}" in
+  nowplaying) music_revamped_doctor_tool player nowplaying-cli "reads what macOS is playing" ;;
+  playerctl) music_revamped_doctor_tool player playerctl "reads the active MPRIS player" ;;
+  cmus) music_revamped_doctor_tool player cmus-remote "reads cmus" ;;
+  osascript) music_revamped_doctor_tool player osascript "reads Spotify" ;;
+  *) revamped_doctor_line player warn "no player to read, so the placeholders stay empty: install playerctl or cmus" ;;
+  esac
+}
+
+music_revamped_doctor_control() {
+  music_revamped_backend
+  case "${MUSIC_REVAMPED_BACKEND}" in
+  playerctl) music_revamped_doctor_tool controls playerctl "plays, pauses and skips" ;;
+  cmus) music_revamped_doctor_tool controls cmus-remote "plays, pauses and skips cmus" ;;
+  osascript) music_revamped_doctor_tool controls osascript "plays, pauses and skips Spotify" ;;
+  *) revamped_doctor_line controls warn "no player to control, so the keys only say so: install playerctl or cmus" ;;
+  esac
+}
+
+music_revamped_doctor_keys() {
+  if [ -n "${MUSIC_REVAMPED_SKIPPED}" ]; then
+    revamped_doctor_line keys warn "already bound and left alone: ${MUSIC_REVAMPED_SKIPPED}"
+    return 0
+  fi
+  revamped_doctor_line keys ok "every key it binds is free or its own"
+}
+
+music_revamped_doctor() {
+  music_revamped_plan
+  revamped_doctor_tmux
+  music_revamped_doctor_source
+  music_revamped_doctor_control
+  music_revamped_doctor_keys
+  revamped_doctor_gum
+  revamped_doctor_core_tools awk sed tr date
+  revamped_doctor_finish
+  [ "${REVAMPED_DOCTOR_MISSING}" -eq 0 ] || exit 1
+}
+
+music_revamped_list() {
+  music_revamped_plan
+  if [ -n "${music_revamped_json}" ]; then
+    music_revamped_json
+    return 0
+  fi
+  music_revamped_lines
+}
+
+music_revamped_apply_command() {
+  music_revamped_apply
+  music_revamped_apply_command_sent=$(music_revamped_bindings)
+  case "${music_revamped_apply_command_sent}" in
+  1) printf 'Applied. 1 key is bound.\n' ;;
+  *) printf 'Applied. %s keys are bound.\n' "${music_revamped_apply_command_sent}" ;;
+  esac
+}
+
+music_revamped_refresh_command() {
+  music_revamped_load
+  music_revamped_refresh
+  [ "${MUSIC_REVAMPED_STORED}" = 1 ] || music_revamped_bad "no tmux server is running, so the reading has nowhere to go"
+  case "${MUSIC_REVAMPED_S_status}:${MUSIC_REVAMPED_S_title}" in
+  *:) printf 'Refreshed. Nothing is playing.\n' ;;
+  *) printf 'Refreshed. %s is %s.\n' "${MUSIC_REVAMPED_S_title}" "${MUSIC_REVAMPED_S_status}" ;;
+  esac
+}
+
+music_revamped_status_command() {
+  case "${1:-}" in
+  now | icon | status | title | artist | progress | time) music_revamped_status "$1" ;;
+  '') music_revamped_usage "no placeholder given" ;;
+  *) music_revamped_bad "status must be now, icon, status, title, artist, progress or time, got: $1" ;;
+  esac
+}
+
+music_revamped_daemon_command() {
+  set +e
+  music_revamped_daemon
+  music_revamped_daemon_command_ended=$?
+  set -e
+  [ "${music_revamped_daemon_command_ended}" -ne 0 ] || exec "${music_revamped_self}" daemon
+}
+
+music_revamped_start_menu() {
+  revamped_cli_require_terminal
+  music_revamped_start_menu_choice=$(revamped_cli_menu "Show what is playing" "List the bindings" "Apply them now" "Check this machine" "Help")
+  case "${music_revamped_start_menu_choice}" in
+  "Show what is playing") music_revamped_refresh_command ;;
+  "List the bindings") music_revamped_list ;;
+  "Apply them now") music_revamped_apply_command ;;
+  "Check this machine") music_revamped_doctor ;;
+  *) music_revamped_help ;;
+  esac
+}
+
+music_revamped_dispatch() {
+  case "${1:-}" in
+  doctor) music_revamped_doctor ;;
+  version | --version | -V) music_revamped_show_version ;;
+  help | --help | -h) music_revamped_help ;;
+  list) music_revamped_list ;;
+  "") music_revamped_start_menu ;;
+  *) revamped_cli_usage_error "unknown command '$1'" ;;
+  esac
+}
+
+music_revamped_known() {
+  [ "$1" != --theme ] || return 0
+  music_revamped_known_name=$(music_revamped_setting_name "$1")
+  [ -n "${music_revamped_known_name}" ] || music_revamped_usage "unknown option '$1'"
+}
+
+music_revamped_set() {
+  music_revamped_set_upper=$(printf '%s\n' "$1" | tr '[:lower:]' '[:upper:]')
+  export "MUSIC_REVAMPED_${music_revamped_set_upper}=$2"
+}
+
+music_revamped_option() {
+  music_revamped_option_name=$(music_revamped_setting_name "$1")
+  [ -n "${music_revamped_option_name}" ] || music_revamped_usage "unknown option '$1'"
+  music_revamped_set "${music_revamped_option_name}" "$2"
+}
+
+music_revamped_check_switch() {
+  case "$2" in
+  0 | 1) return 0 ;;
+  *) music_revamped_bad "--$1 must be 0 or 1, got: $2" ;;
+  esac
+}
+
+music_revamped_check_number() {
+  revamped_cache_is_number "$2" || music_revamped_bad "--$1 must be a whole number, got: $2"
+}
+
+music_revamped_check() {
+  music_revamped_check_number interval "${MUSIC_REVAMPED_INTERVAL-0}"
+  music_revamped_check_number max-len "${MUSIC_REVAMPED_MAX_LEN-0}"
+  music_revamped_check_number progress-width "${MUSIC_REVAMPED_PROGRESS_WIDTH-0}"
+  music_revamped_check_switch auto-hide "${MUSIC_REVAMPED_AUTO_HIDE-0}"
+  case "${MUSIC_REVAMPED_RENDER-jobs}" in
+  jobs | options) return 0 ;;
+  *) music_revamped_bad "--render must be jobs or options, got: ${MUSIC_REVAMPED_RENDER}" ;;
+  esac
+}
+
+music_revamped_main() {
+  music_revamped_theme="${MUSIC_REVAMPED_THEME:-}" music_revamped_json="" music_revamped_left=$# music_revamped_rest=0
+  while [ "${music_revamped_left}" -gt 0 ]; do
+    music_revamped_arg="$1"
+    shift
+    music_revamped_left=$((music_revamped_left - 1))
+    case "${music_revamped_rest}:${music_revamped_arg}" in
+    1:*) set -- "$@" "${music_revamped_arg}" ;;
+    0:--) music_revamped_rest=1 ;;
+    0:--json) music_revamped_json=1 ;;
+    0:-h | 0:-V | 0:--help | 0:--version) set -- "$@" "${music_revamped_arg}" ;;
+    0:--theme=*) music_revamped_theme="${music_revamped_arg#--theme=}" ;;
+    0:--*=*) music_revamped_option "${music_revamped_arg%%=*}" "${music_revamped_arg#*=}" ;;
+    0:--*)
+      music_revamped_known "${music_revamped_arg}"
+      [ "${music_revamped_left}" -gt 0 ] || music_revamped_usage "option '${music_revamped_arg}' needs a value"
+      if [ "${music_revamped_arg}" = --theme ]; then
+        music_revamped_theme="$1"
+      else
+        music_revamped_option "${music_revamped_arg}" "$1"
+      fi
+      shift
+      music_revamped_left=$((music_revamped_left - 1))
+      ;;
+    0:-?*) music_revamped_usage "unknown option '${music_revamped_arg}'" ;;
+    *) set -- "$@" "${music_revamped_arg}" ;;
+    esac
+  done
+  music_revamped_check
+  music_revamped_run "${music_revamped_theme}" "$@"
+}
+
+music_revamped_run() {
+  music_revamped_run_theme="$1"
+  shift
+  [ -z "${music_revamped_json}" ] || [ "${1:-}" = list ] || music_revamped_usage "option '--json' works only with list"
+  case "${1:-}" in
+  apply) music_revamped_apply ;;
+  status) music_revamped_status_command "${2:-}" ;;
+  refresh) music_revamped_refresh_command ;;
+  play-pause | next | prev) music_revamped_control "$1" ;;
+  daemon) music_revamped_daemon_command ;;
+  *)
+    music_revamped_interface
+    revamped_cli_start "${music_revamped_run_theme}"
+    music_revamped_dispatch "$@"
+    ;;
+  esac
+}
+
+music_revamped_main "$@"
