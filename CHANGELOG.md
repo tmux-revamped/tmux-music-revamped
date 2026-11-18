@@ -1,5 +1,40 @@
 # Changelog
 
+# [3.0.0](https://github.com/tmux-revamped/tmux-music-revamped/compare/v2.0.0...v3.0.0) (2026-11-18)
+
+
+* feat!: rewrite the plugin in POSIX sh ([ad9453a](https://github.com/tmux-revamped/tmux-music-revamped/commit/ad9453a86f828872ee7608f7babafc0e261510fc))
+
+
+### Bug Fixes
+
+* **family:** fail when git cannot read a mode ([564ec95](https://github.com/tmux-revamped/tmux-music-revamped/commit/564ec954c9ef6f29775020d3577a70d8fe4ce8b7))
+* **family:** honor only active exceptions ([e0cd638](https://github.com/tmux-revamped/tmux-music-revamped/commit/e0cd638357e206076316de8f65cf429eba701407))
+* **family:** reject unquoted replacements ([945e752](https://github.com/tmux-revamped/tmux-music-revamped/commit/945e752ad91adbb99f0863a97395ebaa16aed668))
+* **family:** require executable entry points ([c8f664e](https://github.com/tmux-revamped/tmux-music-revamped/commit/c8f664ef2342115a95590c10f407c28fdd22a1fd))
+* say so when there is no player ([359a157](https://github.com/tmux-revamped/tmux-music-revamped/commit/359a157d9f330880286b8fc42b3059fab7a7621f))
+
+
+### Features
+
+* add a shared desktop notifier ([8bd45cd](https://github.com/tmux-revamped/tmux-music-revamped/commit/8bd45cd1a8cbfaf75724f341a214d65d84179a85))
+* **family:** accept bot updates in the audit ([94c1503](https://github.com/tmux-revamped/tmux-music-revamped/commit/94c1503f7ffcabd9a833468bf4428ff26d8b69e7))
+
+
+### BREAKING CHANGES
+
+* the script moved from src/music.sh to
+bin/music-revamped, so a status line or a binding that calls
+src/music.sh by hand must call bin/music-revamped status NAME, where
+NAME is now, icon, status, title, artist, progress or time, or the
+matching command. The menu command is gone: the menu key opens the menu.
+The stored title and artist no longer carry doubled hashes, and the
+options that held the time of each cached value,
+@music_revamped_title_ts, _artist_ts, _position_ts and _duration_ts, are
+no longer written; @music_revamped_status_ts holds the time of the
+reading. bash is no longer required. A tmux option set to nothing now
+means its default, where it used to stay empty.
+
 All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
