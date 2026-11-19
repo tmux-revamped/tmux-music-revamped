@@ -46,10 +46,14 @@ music_revamped_resolve() {
   '
 }
 
+music_revamped_setting_rows() {
+  music_revamped_setting_rows_format=$(music_revamped_format)
+  music_revamped_setting_rows_live=$(tmux display-message -p "${music_revamped_setting_rows_format}" 2>/dev/null) || music_revamped_setting_rows_live=""
+  music_revamped_resolve "${music_revamped_setting_rows_live}"
+}
+
 music_revamped_load() {
-  music_revamped_load_format=$(music_revamped_format)
-  music_revamped_load_live=$(tmux display-message -p "${music_revamped_load_format}" 2>/dev/null) || music_revamped_load_live=""
-  music_revamped_load_values=$(music_revamped_resolve "${music_revamped_load_live}")
+  music_revamped_load_values=$(music_revamped_setting_rows)
   while IFS='	' read -r music_revamped_load_name music_revamped_load_value; do
     IFS= read -r "MUSIC_REVAMPED_S_${music_revamped_load_name}" <<EOF
 ${music_revamped_load_value}

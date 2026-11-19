@@ -2,6 +2,7 @@ $ music-revamped doctor
 tmux               ok       <path>, 3.8
 player             warn     no player to read, so the placeholders stay empty: install playerctl or cmus
 controls           warn     no player to control, so the keys only say so: install playerctl or cmus
+settings           ok       every option holds a value it knows
 keys               ok       every key it binds is free or its own
 gum                ok       <path>
 awk                ok       <path>, <flavor>

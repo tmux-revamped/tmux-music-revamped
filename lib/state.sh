@@ -84,3 +84,8 @@ MUSIC_REVAMPED_CLOCK=''
 MUSIC_REVAMPED_WHOLE=0
 REVAMPED_CACHE_PREFIX=music_revamped
 REVAMPED_LOG_NS=music-revamped
+MUSIC_REVAMPED_KINDS='interval	number
+max_len	number
+progress_width	number 0 200
+auto_hide	1 0
+render	jobs options'

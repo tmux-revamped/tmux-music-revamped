@@ -54,7 +54,9 @@ Go back to the previous track.
 Read the player and publish every placeholder the status line uses, once per interval, until another daemon takes over or the tmux server ends. apply starts it in the options render mode.
 .TP
 .B doctor
-Print one row per dependency: tmux, the player it reads, the player it controls, the keys it found bound, gum and the core tools. Exits 1 only when a required tool is missing.
+Print one row per dependency: tmux, the player it reads, the player it controls, the keys it found bound, gum and the core tools.
+A settings row names any setting whose value it does not know.
+Exits 1 only when a required tool is missing.
 .TP
 .B version
 Print the version, then the tmux version.

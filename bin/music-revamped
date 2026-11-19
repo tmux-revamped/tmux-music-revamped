@@ -185,11 +185,18 @@ music_revamped_doctor_keys() {
   revamped_doctor_line keys ok "every key it binds is free or its own"
 }
 
+music_revamped_doctor_settings() {
+  music_revamped_doctor_settings_rows=$(music_revamped_setting_rows)
+  # shellcheck disable=SC2154
+  revamped_doctor_settings "${MUSIC_REVAMPED_KINDS}" "${music_revamped_doctor_settings_rows}"
+}
+
 music_revamped_doctor() {
   music_revamped_plan
   revamped_doctor_tmux
   music_revamped_doctor_source
   music_revamped_doctor_control
+  music_revamped_doctor_settings
   music_revamped_doctor_keys
   revamped_doctor_gum
   revamped_doctor_core_tools awk sed tr date

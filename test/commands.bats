@@ -235,3 +235,15 @@ source "${BATS_TEST_DIRNAME:-.}/music_helpers.bash"
   [[ "${output}" =~ ${skips} ]]
   [[ "${output}" =~ ${free} ]]
 }
+
+@test "commands - doctor names a tmux option whose value it does not know" {
+  # Arrange
+  option progress_width 500
+
+  # Act
+  tool doctor
+
+  # Assert
+  run grep '^settings' <<<"${output}"
+  [[ "${output}" == "settings           warn     unknown values: progress_width=500" ]]
+}

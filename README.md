@@ -120,7 +120,7 @@ When no player is found, every placeholder renders empty. [`examples/status-left
 
 ## Configuration
 
-Every option is also a command option with dashes, such as `--max-len 25`, and an environment variable, such as `MUSIC_REVAMPED_MAX_LEN`; the command line wins over the environment, and the environment over the tmux option. An empty tmux option means its default. One given to `apply` rides on every binding, every menu item and every status call.
+Every option is also a command option with dashes, such as `--max-len 25`, and an environment variable, such as `MUSIC_REVAMPED_MAX_LEN`; the command line wins over the environment, and the environment over the tmux option. An empty tmux option means its default. `doctor` names any setting that holds a value the plugin does not know. One given to `apply` rides on every binding, every menu item and every status call.
 
 ### Display options
 
