@@ -319,14 +319,14 @@ mv -f "'"${FAKE}"'/vars.next" "'"${FAKE}"'/vars"'
   holds out_icon "||"
 }
 
-@test "plan - a path is quoted for a job with each hash doubled, and for a key with none left" {
+@test "plan - a path is quoted for a job with each hash and each percent sign doubled, and for a key with none left" {
   # Arrange
-  local script='music_revamped_job_quote "/a b/it'"'"'s#1"; music_revamped_literal "/a b/it'"'"'s#1"'
+  local script='music_revamped_job_quote "/a b/it'"'"'s#1 50%"; music_revamped_literal "/a b/it'"'"'s#1 50%"'
 
   # Act
   lib_run music "${script}"
 
   # Assert
-  [[ "${lines[0]}" == "'/a b/it'\\''s##1'" ]]
-  [[ "${lines[1]}" == "'/a b/it'\\''s'\"\$(printf '%b' '\\0043')\"'1'" ]]
+  [[ "${lines[0]}" == "'/a b/it'\\''s##1 50%%'" ]]
+  [[ "${lines[1]}" == "'/a b/it'\\''s'\"\$(printf '%b' '\\0043')\"'1 50%'" ]]
 }

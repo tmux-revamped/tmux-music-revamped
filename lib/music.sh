@@ -197,7 +197,7 @@ music_revamped_bind() {
 }
 
 music_revamped_job_quote() {
-  printf '%s\n' "$1" | sed -e "s/'/'\\\\''/g" -e 's/#/##/g' -e "1s/^/'/" -e "\$s/\$/'/"
+  printf '%s\n' "$1" | sed -e "s/'/'\\\\''/g" -e 's/#/##/g' -e 's/%/%%/g' -e "1s/^/'/" -e "\$s/\$/'/"
 }
 
 music_revamped_carried() {
