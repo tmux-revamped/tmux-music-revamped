@@ -1,5 +1,20 @@
 # Changelog
 
+# [3.1.0](https://github.com/tmux-revamped/tmux-music-revamped/compare/v3.0.0...v3.1.0) (2026-11-19)
+
+
+### Bug Fixes
+
+* double the percent sign in a status job ([6a7ec98](https://github.com/tmux-revamped/tmux-music-revamped/commit/6a7ec98c19976950034d3fb3ad974df2245238b0))
+* fold a table wider than the terminal ([cc17007](https://github.com/tmux-revamped/tmux-music-revamped/commit/cc170074cad50d8da38969c9fd42c63f58c622a2))
+* read the grep of macOS as bsd in doctor ([5d7c39e](https://github.com/tmux-revamped/tmux-music-revamped/commit/5d7c39ef64e978e714f6dbd34d7c3335fc9554d4))
+* stop a recording that hangs ([b71180b](https://github.com/tmux-revamped/tmux-music-revamped/commit/b71180b14765366b1f8ad2acedc00288f9ce4524))
+
+
+### Features
+
+* name unknown setting values in doctor ([138191d](https://github.com/tmux-revamped/tmux-music-revamped/commit/138191dad8a5306353f2976b3d7a67605bd7806e))
+
 # [3.0.0](https://github.com/tmux-revamped/tmux-music-revamped/compare/v2.0.0...v3.0.0) (2026-11-18)
 
 
